@@ -1,36 +1,96 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Alma 1.0 - AI Mentor for HR Professionals
 
-## Getting Started
+Alma is an emotionally intelligent AI mentor designed to help HR professionals and People Partners think, decide, and communicate better through structured reflection and guidance.
 
-First, run the development server:
+## Features
 
+- **Multi-turn Conversations**: Context-aware conversations with emotional intelligence
+- **Three Conversation Modes**: Ask, Reflect, and Quiet modes for different interaction styles
+- **Session Memory**: Visible and controllable memory system with privacy options
+- **Streaming Responses**: Real-time AI responses using OpenAI GPT-4o
+- **Tone-Governed**: Responses filtered through emotional intelligence principles
+- **Authentication**: Google OAuth, email/password, and magic link authentication
+- **User Management**: Secure user sessions and profile management
+- **Modular Architecture**: Built for future toolkit integration
+
+## Quick Start
+
+1. **Install Dependencies**
+   ```bash
+   npm install
+   ```
+
+2. **Set up Environment Variables**
+   Create a `.env.local` file in the root directory:
+   ```env
+   OPENAI_API_KEY=your_openai_api_key_here
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your_nextauth_secret_here
+   GOOGLE_CLIENT_ID=your_google_client_id_here
+   GOOGLE_CLIENT_SECRET=your_google_client_secret_here
+   DATABASE_URL=file:./dev.db
+   ```
+
+3. **Set up Database**
+   ```bash
+   npx prisma generate
+   npx prisma migrate dev --name init
+   ```
+
+4. **Start Development Server**
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+   ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. **Open in Browser**
+   Navigate to `http://localhost:3000`
+   - You'll be redirected to the sign-in page
+   - Create an account or sign in with Google
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Architecture
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Core Components
 
-## Learn More
+- **ChatInterface**: Main conversation UI with mode selection and memory controls
+- **SessionManager**: Handles conversation sessions and memory management
+- **AlmaOpenAIClient**: OpenAI integration with Alma's system prompt and tone framework
+- **API Routes**: RESTful endpoints for chat, session, and memory management
 
-To learn more about Next.js, take a look at the following resources:
+### Conversation Modes
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Ask**: For questions and dilemmas - structured problem-solving
+- **Reflect**: For exploring feelings and context - emotional processing
+- **Quiet**: For reading/thinking - minimal interaction unless prompted
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Memory System
 
-## Deploy on Vercel
+- **Active/Inactive**: Toggle memory on/off
+- **Private Mode**: No information saved when enabled
+- **Memory Clearing**: Manual memory reset with user control
+- **Context Visibility**: Users can see memory status and item count
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Technical Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Frontend**: Next.js 14, TypeScript, Tailwind CSS
+- **AI**: OpenAI GPT-4o with streaming responses
+- **State Management**: React hooks with session-based storage
+- **UI Components**: Custom components with Radix UI primitives
+- **Deployment**: Vercel-ready
+
+## Future Roadmap
+
+- **Authentication**: Google OAuth and email authentication
+- **Toolkit Integration**: Recruitment, Onboarding, Performance, Exit guides
+- **Database**: Persistent session storage
+- **Admin Panel**: Configuration management for prompts and tone rules
+
+## Development Notes
+
+- Built with modularity in mind for easy toolkit integration
+- Session memory is currently in-memory (suitable for MVP)
+- All AI responses are filtered through Alma's tone framework
+- Designed for emotional intelligence and human-centered interaction
+
+## Getting Help
+
+For questions about Alma's behavior or technical implementation, refer to the developer orientation materials or reach out to the development team.

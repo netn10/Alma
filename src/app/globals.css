@@ -1,26 +1,229 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: #ffffff;
+  --card-foreground: #0f172a;
+  --popover: #ffffff;
+  --popover-foreground: #0f172a;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #1e293b;
+  --muted: #e2e8f0;
+  --muted-foreground: #64748b;
+  --accent: #e2e8f0;
+  --accent-foreground: #1e293b;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #cbd5e1;
+  --input: #cbd5e1;
+  --ring: #3b82f6;
+  --radius: 0.5rem;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --card: #0a0a0a;
+  --card-foreground: #ededed;
+  --popover: #0a0a0a;
+  --popover-foreground: #ededed;
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
+  --secondary-foreground: #f8fafc;
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
+  --accent-foreground: #f8fafc;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #1e293b;
+  --input: #1e293b;
+  --ring: #3b82f6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Button hover cursor styles */
+button, 
+[role="button"],
+.cursor-pointer {
+  cursor: pointer;
+}
+
+button:hover,
+[role="button"]:hover,
+.cursor-pointer:hover {
+  cursor: pointer;
+}
+
+/* Dark mode specific styles */
+.dark {
+  color-scheme: dark;
+}
+
+.dark .bg-white {
+  background-color: var(--card);
+}
+
+.dark .bg-gray-50 {
+  background-color: var(--muted);
+}
+
+.dark .bg-gray-100 {
+  background-color: var(--secondary);
+}
+
+.dark .text-gray-900 {
+  color: var(--foreground);
+}
+
+.dark .text-gray-700 {
+  color: var(--foreground);
+}
+
+.dark .text-gray-600 {
+  color: var(--muted-foreground);
+}
+
+.dark .text-gray-500 {
+  color: var(--muted-foreground);
+}
+
+.dark .border-gray-200 {
+  border-color: var(--border);
+}
+
+.dark .border-gray-300 {
+  border-color: var(--border);
+}
+
+/* Light mode specific styles */
+.light {
+  color-scheme: light;
+}
+
+.light .bg-white {
+  background-color: var(--card);
+}
+
+.light .bg-gray-50 {
+  background-color: var(--background);
+}
+
+.light .bg-gray-100 {
+  background-color: var(--muted);
+}
+
+.light .bg-gray-200 {
+  background-color: var(--secondary);
+}
+
+.light .bg-gray-800 {
+  background-color: var(--card);
+}
+
+.light .bg-gray-900 {
+  background-color: var(--card);
+}
+
+.light .text-gray-900 {
+  color: var(--foreground);
+}
+
+.light .text-gray-800 {
+  color: var(--foreground);
+}
+
+.light .text-gray-700 {
+  color: var(--foreground);
+}
+
+.light .text-gray-600 {
+  color: var(--muted-foreground);
+}
+
+.light .text-gray-500 {
+  color: var(--muted-foreground);
+}
+
+.light .text-gray-400 {
+  color: var(--muted-foreground);
+}
+
+.light .text-white {
+  color: var(--card-foreground);
+}
+
+.light .border-gray-200 {
+  border-color: var(--border);
+}
+
+.light .border-gray-300 {
+  border-color: var(--border);
+}
+
+.light .border-gray-600 {
+  border-color: var(--border);
+}
+
+.light .border-gray-700 {
+  border-color: var(--border);
+}
+
+/* Hover states for light mode */
+.light .hover\:bg-gray-100:hover {
+  background-color: var(--muted);
+}
+
+.light .hover\:bg-gray-200:hover {
+  background-color: var(--secondary);
+}
+
+.light .hover\:bg-gray-700:hover {
+  background-color: var(--secondary);
+}
+
+.light .hover\:bg-gray-800:hover {
+  background-color: var(--muted);
+}
+
+.light .hover\:text-gray-900:hover {
+  color: var(--foreground);
+}
+
+.light .hover\:text-white:hover {
+  color: var(--card-foreground);
 }
