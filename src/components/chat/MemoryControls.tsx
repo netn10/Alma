@@ -28,7 +28,7 @@ export function MemoryControls({ memoryStatus, onMemoryAction }: MemoryControlsP
         {/* Toggle Memory */}
         <button
           onClick={() => onMemoryAction('toggle')}
-          className={`p-2 rounded-md transition-colors cursor-pointer ${
+          className={`p-2 rounded-md transition-all duration-200 cursor-pointer hover:scale-110 active:scale-90 hover:shadow-md ${
             memoryStatus.isActive
               ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800'
               : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -41,7 +41,7 @@ export function MemoryControls({ memoryStatus, onMemoryAction }: MemoryControlsP
         {/* Toggle Private Mode */}
         <button
           onClick={() => onMemoryAction('togglePrivate')}
-          className={`p-2 rounded-md transition-colors cursor-pointer ${
+          className={`p-2 rounded-md transition-all duration-200 cursor-pointer hover:scale-110 active:scale-90 hover:shadow-md ${
             memoryStatus.isPrivate
               ? 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800'
               : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
@@ -55,7 +55,7 @@ export function MemoryControls({ memoryStatus, onMemoryAction }: MemoryControlsP
         {memoryStatus.isActive && !memoryStatus.isPrivate && (
           <button
             onClick={() => onMemoryAction('clear')}
-            className="p-2 rounded-md transition-colors cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
+            className="p-2 rounded-md transition-all duration-200 cursor-pointer bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 hover:scale-110 active:scale-90 hover:shadow-md"
             title="Clear memory"
           >
             <Trash2 className="w-4 h-4" />

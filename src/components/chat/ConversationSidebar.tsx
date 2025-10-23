@@ -76,7 +76,7 @@ export function ConversationSidebar({
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1 hover:bg-accent rounded transition-colors"
+            className="p-1 hover:bg-accent rounded transition-all duration-200 hover:scale-110 active:scale-90"
             aria-label="Close sidebar"
           >
             <X className="w-5 h-5" />
@@ -88,7 +88,7 @@ export function ConversationSidebar({
       <div className="flex border-b border-border">
         <button
           onClick={() => setActiveTab('current')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 ${
             activeTab === 'current'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'
@@ -101,7 +101,7 @@ export function ConversationSidebar({
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`flex-1 px-4 py-3 text-sm font-medium transition-colors border-b-2 ${
+          className={`flex-1 px-4 py-3 text-sm font-medium transition-all duration-200 border-b-2 hover:bg-gray-50 dark:hover:bg-gray-800 active:scale-95 ${
             activeTab === 'history'
               ? 'border-primary text-primary'
               : 'border-transparent text-muted-foreground hover:text-foreground'

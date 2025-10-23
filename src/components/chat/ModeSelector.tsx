@@ -1,7 +1,7 @@
 'use client';
 
 import { ConversationMode } from '@/types/alma';
-import { Brain, Eye, Moon } from 'lucide-react';
+import { MessageCircle, Brain, VolumeX } from 'lucide-react';
 
 interface ModeSelectorProps {
   currentMode: ConversationMode;
@@ -13,33 +13,33 @@ export function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
     {
       mode: 'ask',
       label: 'Ask',
-      icon: <Brain className="w-4 h-4" />,
+      icon: <MessageCircle className="w-4 h-4" />,
       description: 'Bring a question or dilemma'
     },
     {
       mode: 'reflect',
       label: 'Reflect',
-      icon: <Eye className="w-4 h-4" />,
+      icon: <Brain className="w-4 h-4" />,
       description: 'Explore feelings or context'
     },
     {
       mode: 'quiet',
       label: 'Quiet',
-      icon: <Moon className="w-4 h-4" />,
-      description: 'Reading or thinking'
+      icon: <VolumeX className="w-4 h-4" />,
+      description: 'Alma remains silent unless prompted'
     }
   ];
 
   return (
-    <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+    <div className="flex items-center space-x-1">
       {modes.map(({ mode, label, icon, description }) => (
         <button
           key={mode}
           onClick={() => onModeChange(mode)}
-          className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md ${
             currentMode === mode
-              ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-white shadow-sm'
-              : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-600'
+              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
           title={description}
         >

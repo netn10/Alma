@@ -130,7 +130,7 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false }: Vo
           <button
             onClick={startRecording}
             disabled={disabled}
-            className="p-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white rounded-full transition-colors"
+            className="p-2 bg-red-500 hover:bg-red-600 disabled:bg-gray-400 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
             title="Start recording"
           >
             <Mic className="w-4 h-4" />
@@ -138,7 +138,7 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false }: Vo
         ) : (
           <button
             onClick={stopRecording}
-            className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-colors"
+            className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg animate-pulse"
             title="Stop recording"
           >
             <Square className="w-4 h-4" />
@@ -152,7 +152,7 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false }: Vo
           {!isPlaying ? (
             <button
               onClick={playRecording}
-              className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-colors"
+              className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
               title="Play recording"
             >
               <Play className="w-4 h-4" />
@@ -160,17 +160,17 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false }: Vo
           ) : (
             <button
               onClick={pauseRecording}
-              className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-colors"
+              className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
               title="Pause recording"
             >
               <Pause className="w-4 h-4" />
             </button>
           )}
-          
+
           <button
             onClick={transcribeAudio}
             disabled={isTranscribing}
-            className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-colors"
+            className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg"
           >
             {isTranscribing ? 'Transcribing...' : 'Transcribe'}
           </button>

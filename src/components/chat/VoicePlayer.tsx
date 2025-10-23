@@ -78,10 +78,35 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
       setIsPlaying(false);
     };
 
-    // Set voice properties
-    utterance.rate = 0.9;
-    utterance.pitch = 1;
-    utterance.volume = isMuted ? 0 : 1;
+    // Set voice properties for natural female voice
+    utterance.rate = 0.85; // Slightly slower for more natural speech
+    utterance.pitch = 1.0; // Natural pitch
+    utterance.volume = isMuted ? 0 : 0.9;
+
+    // Enhanced female voice selection
+    const voices = speechSynthesis.getVoices();
+    const femaleVoice = voices.find(voice => 
+      voice.name.toLowerCase().includes('samantha') ||
+      voice.name.toLowerCase().includes('karen') ||
+      voice.name.toLowerCase().includes('susan') ||
+      voice.name.toLowerCase().includes('victoria') ||
+      voice.name.toLowerCase().includes('zira') ||
+      voice.name.toLowerCase().includes('hazel') ||
+      voice.name.toLowerCase().includes('serena') ||
+      voice.name.toLowerCase().includes('female') || 
+      voice.name.toLowerCase().includes('woman') ||
+      voice.name.toLowerCase().includes('natural') ||
+      voice.name.toLowerCase().includes('premium') ||
+      voice.name.toLowerCase().includes('enhanced')
+    ) || voices.find(voice => 
+      voice.lang.startsWith('en') && 
+      (voice.name.toLowerCase().includes('female') || 
+       voice.name.toLowerCase().includes('woman'))
+    );
+    
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
 
     speechSynthesis.speak(utterance);
   };
@@ -171,7 +196,7 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
       <button
         onClick={playPause}
         disabled={isLoading || !text.trim()}
-        className="p-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-full transition-colors"
+        className="p-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
         title={isPlaying ? 'Pause' : 'Play'}
       >
         {isLoading ? (
@@ -187,7 +212,7 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
       {isPlaying && (
         <button
           onClick={stop}
-          className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-colors"
+          className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
           title="Stop"
         >
           <VolumeX className="w-4 h-4" />
@@ -197,7 +222,7 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
       {/* Mute/Unmute Button */}
       <button
         onClick={toggleMute}
-        className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-colors"
+        className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
         title={isMuted ? 'Unmute' : 'Mute'}
       >
         {isMuted ? (
@@ -212,7 +237,7 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
         <button
           onClick={generateSpeech}
           disabled={isLoading || !text.trim()}
-          className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-colors"
+          className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg"
         >
           {isLoading ? 'Generating...' : 'Speak'}
         </button>

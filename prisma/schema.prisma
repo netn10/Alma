@@ -65,7 +65,7 @@ model AlmaSession {
   userId    String
   title     String?  // Auto-generated conversation title
   messages  Json     // Store messages as JSON
-  mode      String   @default("ask")
+  mode      String   @default("speak")
   memory    Json     // Store memory settings as JSON
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

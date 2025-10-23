@@ -31,7 +31,7 @@ export function ConversationList({
       <div className="p-4 border-b border-border">
         <button
           onClick={onNewConversation}
-          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center gap-2"
+          className="w-full px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
         >
           <MessageSquare className="w-4 h-4" />
           New Conversation
@@ -54,7 +54,7 @@ export function ConversationList({
                 <div
                   key={conversation.id}
                   onClick={() => onSelectConversation(conversation.id)}
-                  className={`p-4 cursor-pointer transition-colors hover:bg-accent/50 ${
+                  className={`p-4 cursor-pointer transition-all duration-200 hover:bg-accent/50 hover:translate-x-1 active:scale-98 ${
                     isActive ? 'bg-accent' : ''
                   }`}
                 >
@@ -80,7 +80,7 @@ export function ConversationList({
                     </div>
                     <button
                       onClick={(e) => handleDelete(e, conversation.id)}
-                      className="p-1 hover:bg-destructive/20 rounded transition-colors"
+                      className="p-1 hover:bg-destructive/20 rounded transition-all duration-200 hover:scale-110 active:scale-90"
                       aria-label="Delete conversation"
                     >
                       <Trash2 className="w-4 h-4 text-destructive" />

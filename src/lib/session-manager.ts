@@ -20,7 +20,7 @@ export class SessionManager {
         userId,
         title: title || null,
         messages: [],
-        mode: 'ask',
+        mode: 'speak',
         memory: memory as any,
       }
     });

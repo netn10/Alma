@@ -64,13 +64,26 @@ export class AlmaOpenAIClient {
   private getModeInstructions(mode: string): string {
     switch (mode) {
       case 'ask':
-        return 'The user is bringing a question or dilemma. Help them think through it with your three-move structure.';
+        return 'The user is bringing a question or dilemma. Help them think through their situation using your three-move structure: seeing clearly → naming what matters → suggesting next steps. Be direct and solution-focused.';
       case 'reflect':
-        return 'The user is exploring feelings or context. Be gentle and help them process their emotions.';
+        return 'The user wants to explore their feelings or context. Be gentle and supportive. Help them process emotions and gain self-awareness. Focus on understanding rather than solving.';
       case 'quiet':
-        return 'The user may be reading or thinking. Only respond if they directly address you.';
+        return 'The user is in quiet mode for reading or thinking. Only respond if they explicitly ask you something. Keep responses brief and minimal.';
       default:
         return 'Engage naturally based on the user\'s needs.';
+    }
+  }
+
+  private getSuggestionContext(mode: string): string {
+    switch (mode) {
+      case 'ask':
+        return 'Focus on actionable next steps and decision-making support.';
+      case 'reflect':
+        return 'Focus on emotional processing and self-reflection prompts.';
+      case 'quiet':
+        return 'Keep suggestions minimal and only if explicitly requested.';
+      default:
+        return '';
     }
   }
 
@@ -80,9 +93,11 @@ export class AlmaOpenAIClient {
     mode: string
   ): Promise<string[]> {
     try {
+      const modeContext = this.getSuggestionContext(mode);
       const suggestionPrompt = `You are assisting an HR professional. Based on this conversation, generate 3 smart, actionable suggestions that move the user toward their work goals and next steps.
 
 Current mode: ${mode.toUpperCase()}
+${modeContext}
 
 Conversation context:
 ${conversationHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('\n')}

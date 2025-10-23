@@ -9,7 +9,7 @@ export function ThemeToggle() {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-md transition-colors hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer"
+      className="p-2 rounded-md transition-all duration-200 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer hover:scale-110 active:scale-90 hover:shadow-md"
       title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
     >
       {theme === 'light' ? (

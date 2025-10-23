@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate speech using OpenAI TTS
+    // Generate speech using OpenAI TTS with natural female voice
     const mp3 = await openai.audio.speech.create({
-      model: 'tts-1', // You can use 'tts-1-hd' for higher quality
-      voice: 'alloy', // Options: alloy, echo, fable, onyx, nova, shimmer
+      model: 'tts-1-hd', // Higher quality model for more natural speech
+      voice: 'nova', // Nova is OpenAI's natural-sounding female voice (not robotic)
       input: text,
       response_format: 'mp3',
     });

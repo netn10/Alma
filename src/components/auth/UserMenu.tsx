@@ -15,7 +15,7 @@ export function UserMenu() {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer"
+        className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
       >
         {session.user.image ? (
           <img
@@ -45,14 +45,14 @@ export function UserMenu() {
             <Link
               href="/settings"
               onClick={() => setIsOpen(false)}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:translate-x-1"
             >
               <Settings className="w-4 h-4 mr-3" />
               Settings
             </Link>
             <button
               onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:translate-x-1"
             >
               <LogOut className="w-4 h-4 mr-3" />
               Sign out
