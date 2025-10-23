@@ -273,7 +273,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
         </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-2">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
         {messages.length === 0 && (
           <div className="text-center py-6 sm:py-8">
             <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3 sm:mb-4" />

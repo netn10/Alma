@@ -123,11 +123,12 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   };
 
   return (
-    <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} px-1`}>
-      <div className={`flex space-x-2 sm:space-x-3 max-w-[85%] sm:max-w-xs lg:max-w-md ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
+    <div className={`flex justify-center px-1`}>
+      <div className={`flex ${isUser ? 'justify-end' : 'justify-start'} w-full max-w-4xl`}>
+        <div className={`flex space-x-2 sm:space-x-3 max-w-[90%] sm:max-w-md lg:max-w-xl ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`}>
 
-        {/* Message Content */}
-        <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} min-w-0 flex-1`}>
+          {/* Message Content */}
+          <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} min-w-0 flex-1`}>
           <div className={`px-3 sm:px-4 py-2 sm:py-3 rounded-2xl ${
             isUser
               ? 'bg-blue-600 text-white'
@@ -138,7 +139,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           
           {/* Speech button for assistant messages only */}
           {!isUser && (
-            <div className="flex items-center space-x-2 mt-0.5">
+            <div className="flex items-center space-x-2 mt-1">
               <button
                 onClick={speakMessage}
                 className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md ${
@@ -159,9 +160,10 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           )}
           
           {/* Timestamp */}
-          <div className={`text-xs text-gray-500 dark:text-gray-400 mt-0.5 ${isUser ? 'text-right' : 'text-left'}`}>
+          <div className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${isUser ? 'text-right' : 'text-left'}`}>
             {timeString}
           </div>
+        </div>
         </div>
       </div>
     </div>
