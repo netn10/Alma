@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, Brain, Clock, MessageCircle, VolumeX, Mic } from 'lucide-react';
+import { Send, Brain, Clock, MessageCircle, VolumeX, Mic, X, Check, Pause } from 'lucide-react';
 import { AlmaMessage, ConversationMode, SessionMemory } from '@/types/alma';
 import { MessageBubble } from './MessageBubble';
 import { ModeSelector } from './ModeSelector';
@@ -22,6 +22,8 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSidebar, setShowSidebar] = useState(false);
   const [voiceError, setVoiceError] = useState<string>('');
+  const [isRecordingConfirmation, setIsRecordingConfirmation] = useState(false);
+  const [userInitiatedRecording, setUserInitiatedRecording] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -167,12 +169,56 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
     setVoiceError(error);
   };
 
+  const handleCancelRecording = () => {
+    setIsRecordingConfirmation(false);
+    setUserInitiatedRecording(false);
+    setInput('');
+    if (isListening) {
+      toggleListening();
+    }
+  };
+
+  const handleAcceptRecording = () => {
+    setIsRecordingConfirmation(false);
+    setUserInitiatedRecording(false);
+    if (isListening) {
+      toggleListening();
+    }
+    // Send the message if there's content
+    if (input.trim()) {
+      sendMessage(input);
+    }
+  };
+
+  const handleMicrophoneToggle = () => {
+    if (isRecordingConfirmation) {
+      // If in confirmation state, cancel the recording
+      handleCancelRecording();
+    } else {
+      // Normal toggle behavior - mark that user initiated recording
+      setUserInitiatedRecording(true);
+      toggleListening();
+    }
+  };
+
   // Real-time speech recognition
   const { isListening, toggleListening } = useSpeechRecognition({
     onTranscriptionUpdate: handleVoiceTranscription,
     onError: handleVoiceError,
     disabled: isLoading
   });
+
+  // Handle transition to confirmation state when listening stops and there's transcription
+  // Only show confirmation if user clicked microphone (not automatic)
+  useEffect(() => {
+    if (!isListening && input.trim() && !isRecordingConfirmation && !isLoading && userInitiatedRecording) {
+      // Only show confirmation if the user was actively recording (clicked microphone)
+      const timer = setTimeout(() => {
+        setIsRecordingConfirmation(true);
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [isListening, input, isRecordingConfirmation, isLoading, userInitiatedRecording]);
 
 
 
@@ -227,7 +273,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
         </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3 sm:space-y-4">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-2 sm:space-y-2">
         {messages.length === 0 && (
           <div className="text-center py-6 sm:py-8">
             <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3 sm:mb-4" />
@@ -269,7 +315,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md"
+                className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-500 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md"
               >
                 {suggestion}
               </button>
@@ -284,27 +330,6 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
         {voiceError && (
           <div className="mb-3 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
             <p className="text-sm text-red-600 dark:text-red-400">{voiceError}</p>
-          </div>
-        )}
-
-        {/* Listening Indicator */}
-        {isListening && (
-          <div className="mb-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-500 dark:border-red-600 rounded-lg flex items-center space-x-3">
-            <div className="flex space-x-1">
-              <div className="w-1 h-4 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></div>
-              <div className="w-1 h-6 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></div>
-              <div className="w-1 h-5 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></div>
-              <div className="w-1 h-7 bg-red-500 rounded-full animate-pulse" style={{ animationDelay: '450ms' }}></div>
-            </div>
-            <p className="text-sm text-red-600 dark:text-red-400 font-medium flex-1">
-              Listening... Speak now
-            </p>
-            <button
-              onClick={toggleListening}
-              className="text-xs text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 underline"
-            >
-              Stop
-            </button>
           </div>
         )}
 
@@ -323,20 +348,51 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
           />
 
           {/* Microphone Button */}
-          <button
-            type="button"
-            onClick={toggleListening}
-            disabled={isLoading}
-            className={`px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 ${
-              isListening
-                ? 'bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 shadow-lg shadow-red-500/50'
-                : 'bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 hover:shadow-lg'
-            } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
-            aria-label={isListening ? 'Stop recording' : 'Start voice input'}
-            title={isListening ? 'Click to stop' : 'Click to speak'}
-          >
-            <Mic className={`w-4 h-4 sm:w-5 sm:h-5 ${isListening ? 'animate-pulse' : ''}`} />
-          </button>
+          {isRecordingConfirmation ? (
+            <div className="flex space-x-2">
+              {/* Cancel Button */}
+              <button
+                type="button"
+                onClick={handleCancelRecording}
+                disabled={isLoading}
+                className="px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 shadow-lg shadow-red-500/50 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Cancel recording"
+                title="Cancel recording"
+              >
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+              {/* Accept Button */}
+              <button
+                type="button"
+                onClick={handleAcceptRecording}
+                disabled={isLoading}
+                className="px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800 shadow-lg shadow-green-500/50 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Accept recording"
+                title="Accept recording"
+              >
+                <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={handleMicrophoneToggle}
+              disabled={isLoading}
+              className={`px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 ${
+                isListening
+                  ? 'bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 shadow-lg shadow-red-500/50'
+                  : 'bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 hover:shadow-lg'
+              } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
+              aria-label={isListening ? 'Stop recording' : 'Start voice input'}
+              title={isListening ? 'Click to stop' : 'Click to speak'}
+            >
+              {isListening ? (
+                <Pause className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
+              ) : (
+                <Mic className="w-4 h-4 sm:w-5 sm:h-5" />
+              )}
+            </button>
+          )}
 
           <button
             type="submit"

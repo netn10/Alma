@@ -64,13 +64,13 @@ export class AlmaOpenAIClient {
   private getModeInstructions(mode: string): string {
     switch (mode) {
       case 'ask':
-        return 'The user is bringing a question or dilemma. Help them think through their situation using your three-move structure: seeing clearly → naming what matters → suggesting next steps. Be direct and solution-focused.';
+        return 'ASK MODE: The user needs an answer. Get to the point quickly. If you need more context, ask a direct question. Give them your best specific advice, not vague options.';
       case 'reflect':
-        return 'The user wants to explore their feelings or context. Be gentle and supportive. Help them process emotions and gain self-awareness. Focus on understanding rather than solving.';
+        return 'REFLECT MODE: The user is processing something. Help them see what matters, but be specific. Name what you notice, ask targeted questions, and point toward clarity. Don\'t just validate - help them move forward.';
       case 'quiet':
-        return 'The user is in quiet mode for reading or thinking. Only respond if they explicitly ask you something. Keep responses brief and minimal.';
+        return 'QUIET MODE: The user is thinking. Stay silent unless they ask you directly. If they do ask, answer briefly and get out of the way.';
       default:
-        return 'Engage naturally based on the user\'s needs.';
+        return 'Be direct and specific based on what the user needs.';
     }
   }
 
@@ -94,7 +94,7 @@ export class AlmaOpenAIClient {
   ): Promise<string[]> {
     try {
       const modeContext = this.getSuggestionContext(mode);
-      const suggestionPrompt = `You are assisting an HR professional. Based on this conversation, generate 3 smart, actionable suggestions that move the user toward their work goals and next steps.
+      const suggestionPrompt = `Based on this conversation, generate 3 smart, actionable suggestions that help the user move forward with their specific situation.
 
 Current mode: ${mode.toUpperCase()}
 ${modeContext}
@@ -105,27 +105,38 @@ ${conversationHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('
 Your last response: ${lastResponse}
 
 Generate 3 brief, goal-oriented suggestions (each under 10 words) written from the USER's perspective. These should:
-- Help the user make progress on their HR tasks
+- Be directly relevant to the user's specific situation and needs
 - Point toward concrete next actions or decisions
 - Be specific to the conversation context, not generic
 - Guide the user toward clarity, resolution, or forward movement
 
-Examples of good suggestions:
-- "Draft the performance review template now"
-- "Schedule the team feedback session this week"
-- "Prioritize the urgent hiring decisions first"
-
-Format your response as a JSON array of 3 strings, nothing else. Example: ["suggestion 1", "suggestion 2", "suggestion 3"]`;
+IMPORTANT: You MUST respond with ONLY a JSON array, nothing else. No explanations, no apologies, no extra text.
+Format: ["suggestion 1", "suggestion 2", "suggestion 3"]`;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [{ role: 'user', content: suggestionPrompt }],
         temperature: 0.8,
         max_tokens: 150,
+        response_format: { type: 'json_object' }
       });
 
-      const content = response.choices[0]?.message?.content || '[]';
-      const suggestions = JSON.parse(content);
+      const content = response.choices[0]?.message?.content || '{"suggestions":[]}';
+
+      // Try to parse as JSON object first (in case it wraps in an object)
+      let suggestions;
+      try {
+        const parsed = JSON.parse(content);
+        suggestions = parsed.suggestions || parsed;
+      } catch {
+        // If that fails, try to extract JSON array from the content
+        const match = content.match(/\[(.*?)\]/s);
+        if (match) {
+          suggestions = JSON.parse(`[${match[1]}]`);
+        } else {
+          suggestions = [];
+        }
+      }
 
       return Array.isArray(suggestions) ? suggestions.slice(0, 3) : [];
     } catch (error) {
