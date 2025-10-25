@@ -27,6 +27,7 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
   const [isRecordingConfirmation, setIsRecordingConfirmation] = useState(false);
   const [userInitiatedRecording, setUserInitiatedRecording] = useState(false);
   const [conversationTitle, setConversationTitle] = useState<string | null>(null);
+  const [silentModeReasoning, setSilentModeReasoning] = useState<string | null>(null);
 
   // Translation helper
   const t = (key: string) => {
@@ -72,8 +73,8 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
         he: 'חקור רגשות או הקשר'
       },
       'quiet': {
-        en: 'Alma remains silent unless prompted',
-        he: 'אלמה נשארת שקטה אלא אם כן מבקשים'
+        en: 'Alma listens silently and only responds when something important needs attention',
+        he: 'אלמה מקשיבה בשקט ומגיבה רק כשמשהו חשוב דורש תשומת לב'
       },
       'stopRecording': {
         en: 'Stop recording',
@@ -98,6 +99,14 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
       'toggleSidebar': {
         en: 'Toggle conversations sidebar',
         he: 'הצג/הסתר סרגל שיחות'
+      },
+      'silentMode': {
+        en: 'Alma is listening silently...',
+        he: 'אלמה מקשיבה בשקט...'
+      },
+      'silentReasoning': {
+        en: 'Alma chose to stay silent:',
+        he: 'אלמה בחרה להישאר שקטה:'
       }
     };
     return translations[key]?.[voiceLanguage] || translations[key]?.['en'] || key;
@@ -203,18 +212,33 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
         throw new Error(data.error || 'Failed to send message');
       }
 
-      // Convert timestamp string back to Date object
-      const messageWithDate = {
-        ...data.message,
-        timestamp: new Date(data.message.timestamp)
-      };
-      
-      setMessages(prev => [...prev, messageWithDate]);
+      // Only add message if there's actually a message (not silent mode)
+      if (data.message) {
+        // Convert timestamp string back to Date object
+        const messageWithDate = {
+          ...data.message,
+          timestamp: new Date(data.message.timestamp)
+        };
+        
+        setMessages(prev => [...prev, messageWithDate]);
+      }
       setSessionId(data.sessionId);
       setMode(data.mode);
       setConversationTitle(data.title);
       console.log('Received suggestions:', data.suggestions);
       setSuggestions(data.suggestions || []);
+      
+      // Handle silent mode - show reasoning only in debug mode
+      // For now, we'll show it in development, but this can be controlled by a debug flag
+      const isDebugMode = process.env.NODE_ENV === 'development' || window.location.search.includes('debug=true');
+      
+      if (data.silentMode && data.reasoning && isDebugMode) {
+        setSilentModeReasoning(data.reasoning);
+        // Clear reasoning after 5 seconds
+        setTimeout(() => setSilentModeReasoning(null), 5000);
+      } else {
+        setSilentModeReasoning(null);
+      }
 
     } catch (error) {
       console.error('Error sending message:', error);
@@ -406,6 +430,21 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
             <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
             <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
             <span className="ml-2">{t('thinking')}</span>
+          </div>
+        )}
+
+        {/* Silent Mode Reasoning */}
+        {silentModeReasoning && (
+          <div className="flex justify-center">
+            <div className="bg-gray-100 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg p-3 max-w-md">
+              <div className="flex items-center space-x-2 text-gray-600 dark:text-gray-300">
+                <VolumeX className="w-4 h-4" />
+                <span className="text-sm font-medium">{t('silentReasoning')}</span>
+              </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1" dir={voiceLanguage === 'he' ? 'rtl' : 'ltr'}>
+                {silentModeReasoning}
+              </p>
+            </div>
           </div>
         )}
 

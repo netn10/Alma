@@ -206,7 +206,7 @@ export function ConversationItem({
           {!isEditing && (
             <div className={`flex items-center gap-2 mt-2 text-xs text-muted-foreground ${language === 'he' ? 'flex-row-reverse' : ''}`}>
               <span>
-                {language === 'he' ? `${t('messages')} ${messageCount}` : `${messageCount} ${t('messages')}`}
+                {language === 'he' ? `${messageCount} ${t('messages')}` : `${messageCount} ${t('messages')}`}
               </span>
               <span>•</span>
               <span>

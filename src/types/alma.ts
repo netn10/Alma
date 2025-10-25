@@ -52,4 +52,6 @@ export interface AlmaResponse {
   mode: ConversationMode;
   memoryUpdated: boolean;
   suggestions?: string[];
+  silentMode?: boolean;
+  reasoning?: string;
 }

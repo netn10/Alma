@@ -88,17 +88,20 @@ export async function POST(request: NextRequest) {
     // Generate response using the updated session messages
     const response = await almaClient.generateResponse(session.messages, mode, language);
 
-    // Create assistant message
-    const assistantMessage = {
-      id: uuidv4(),
-      role: 'assistant' as const,
-      content: response.content,
-      timestamp: new Date(),
-      mode
-    };
+    // Handle silent mode - only add message if there's content
+    let assistantMessage = null;
+    if (response.content.trim()) {
+      assistantMessage = {
+        id: uuidv4(),
+        role: 'assistant' as const,
+        content: response.content,
+        timestamp: new Date(),
+        mode
+      };
 
-    // Add assistant message to session
-    await sessionManager.addMessage(session.id, assistantMessage);
+      // Add assistant message to session
+      await sessionManager.addMessage(session.id, assistantMessage);
+    }
 
     // Generate title for new sessions after first exchange
     let { title } = session;
@@ -113,7 +116,9 @@ export async function POST(request: NextRequest) {
       mode: response.mode,
       title: title,
       suggestions: response.suggestions,
-      memoryStatus: await sessionManager.getMemoryStatus(session.id)
+      memoryStatus: await sessionManager.getMemoryStatus(session.id),
+      silentMode: response.silentMode,
+      reasoning: response.reasoning
     });
 
   } catch (error) {

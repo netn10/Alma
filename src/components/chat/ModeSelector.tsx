@@ -18,7 +18,7 @@ export function ModeSelector({ currentMode, onModeChange, language = 'en' }: Mod
       'quietLabel': { en: 'Quiet', he: 'שקטה' },
       'askDesc': { en: 'Bring a question or dilemma', he: 'הבא שאלה או דילמה' },
       'reflectDesc': { en: 'Explore feelings or context', he: 'חקור רגשות או הקשר' },
-      'quietDesc': { en: 'Alma remains silent unless prompted', he: 'אלמה נשארת שקטה אלא אם כן מבקשים' }
+      'quietDesc': { en: 'Alma listens silently and only responds when something important needs attention', he: 'אלמה מקשיבה בשקט ומגיבה רק כשמשהו חשוב דורש תשומת לב' }
     };
     return translations[key]?.[language] || translations[key]?.['en'] || key;
   };

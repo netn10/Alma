@@ -21,6 +21,21 @@ export class AlmaOpenAIClient {
       // Log messages being sent to OpenAI for debugging
       console.log('Generating response with messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 50) })));
       
+      // For quiet mode, first determine if we should respond
+      if (mode === 'quiet') {
+        const shouldRespond = await this.shouldRespondInQuietMode(messages, language);
+        if (!shouldRespond.shouldRespond) {
+          return {
+            content: '',
+            mode,
+            memoryUpdated: false,
+            suggestions: [],
+            silentMode: true,
+            reasoning: shouldRespond.reasoning
+          };
+        }
+      }
+
       const systemMessage = this.buildSystemMessage(mode, language);
       const openaiMessages = [
         { role: 'system', content: systemMessage },
@@ -44,6 +59,13 @@ export class AlmaOpenAIClient {
         fullResponse += content;
       }
 
+      // For quiet mode, generate reasoning but don't prepend it to the response
+      // The reasoning will be handled separately in the frontend
+      let quietModeReasoning = null;
+      if (mode === 'quiet' && fullResponse.trim()) {
+        quietModeReasoning = await this.generateQuietModeReasoning(messages, fullResponse, language);
+      }
+
       // Generate AI-powered suggestions based on the conversation
       const suggestions = await this.generateSuggestions(messages, fullResponse, mode, language);
 
@@ -51,7 +73,9 @@ export class AlmaOpenAIClient {
         content: fullResponse,
         mode,
         memoryUpdated: true,
-        suggestions
+        suggestions,
+        silentMode: mode === 'quiet',
+        reasoning: quietModeReasoning
       };
     } catch (error) {
       console.error('OpenAI API error:', error);
@@ -76,6 +100,123 @@ export class AlmaOpenAIClient {
         return 'QUIET MODE: The user is thinking. Stay silent unless they ask you directly. If they do ask, answer briefly and get out of the way.';
       default:
         return 'Be direct and specific based on what the user needs.';
+    }
+  }
+
+  private async shouldRespondInQuietMode(messages: AlmaMessage[], language: string): Promise<{ shouldRespond: boolean; reasoning: string }> {
+    try {
+      const lastMessage = messages[messages.length - 1];
+      if (!lastMessage || lastMessage.role !== 'user') {
+        return { shouldRespond: false, reasoning: 'No user message to respond to' };
+      }
+
+      const languageInstruction = language === 'he' ? '\n\nIMPORTANT: Respond in Hebrew (עברית).' : '';
+      const decisionPrompt = `You are in SILENT MODE. Analyze the user's message and determine if you should respond.
+
+CRITERIA FOR RESPONDING:
+- Direct question or request for help
+- Clear distress, confusion, or need for guidance
+- Explicit request for your input
+- Safety concern or urgent matter
+- User is stuck and needs direction
+
+CRITERIA FOR STAYING SILENT:
+- User is just thinking out loud
+- User is processing or reflecting
+- User is making statements without asking for input
+- User is working through something independently
+- User is expressing thoughts without seeking response
+
+User's message: "${lastMessage.content}"
+
+IMPORTANT: You must respond with ONLY a valid JSON object. No explanations, no additional text, no markdown formatting.
+
+Required format:
+{"shouldRespond": true, "reasoning": "Your explanation here"}
+
+or
+
+{"shouldRespond": false, "reasoning": "Your explanation here"}${languageInstruction}`;
+
+      const response = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: decisionPrompt }],
+        temperature: 0.3,
+        max_tokens: 200
+      });
+
+      const content = response.choices[0]?.message?.content || '{}';
+      console.log('Raw LLM response for silent mode decision:', content);
+      
+      try {
+        // Try to extract JSON from the response (in case there's extra text)
+        let jsonContent = content.trim();
+        
+        // Look for JSON object in the response
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          jsonContent = jsonMatch[0];
+        }
+        
+        const decision = JSON.parse(jsonContent);
+        console.log('Parsed decision:', decision);
+        
+        return {
+          shouldRespond: decision.shouldRespond === true || decision.shouldRespond === 'true',
+          reasoning: decision.reasoning || 'Unable to determine'
+        };
+      } catch (parseError) {
+        console.error('JSON parse error:', parseError);
+        console.log('Failed to parse content:', content);
+        
+        // Try to extract decision from text if JSON parsing fails
+        const shouldRespondMatch = content.match(/shouldRespond["\s]*:[\s]*true/i);
+        const reasoningMatch = content.match(/reasoning["\s]*:[\s]*"([^"]+)"/i);
+        
+        if (shouldRespondMatch || reasoningMatch) {
+          return {
+            shouldRespond: !!shouldRespondMatch,
+            reasoning: reasoningMatch ? reasoningMatch[1] : 'Parsed from text'
+          };
+        }
+        
+        // Final fallback: err on the side of staying silent
+        return {
+          shouldRespond: false,
+          reasoning: 'Unable to parse decision, staying silent'
+        };
+      }
+    } catch (error) {
+      console.error('Error in shouldRespondInQuietMode:', error);
+      return {
+        shouldRespond: false,
+        reasoning: 'Error occurred, staying silent'
+      };
+    }
+  }
+
+  private async generateQuietModeReasoning(messages: AlmaMessage[], response: string, language: string): Promise<string> {
+    try {
+      const lastMessage = messages[messages.length - 1];
+      const languageInstruction = language === 'he' ? '\n\nIMPORTANT: Respond in Hebrew (עברית).' : '';
+      const reasoningPrompt = `You chose to respond in SILENT MODE. Explain briefly why you decided to break your silence.
+
+User's message: "${lastMessage.content}"
+Your response: "${response}"
+
+Provide a brief explanation (1-2 sentences) of why this message required your response. Be specific about what triggered your decision to respond.${languageInstruction}`;
+
+      const reasoningResponse = await openai.chat.completions.create({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: reasoningPrompt }],
+        temperature: 0.5,
+        max_tokens: 100
+      });
+
+      return reasoningResponse.choices[0]?.message?.content || 'I chose to respond because this seemed important.';
+    } catch (error) {
+      console.error('Error generating quiet mode reasoning:', error);
+      return 'I chose to respond because this seemed important.';
     }
   }
 
