@@ -11,6 +11,16 @@ interface VoiceRecorderProps {
 }
 
 export function VoiceRecorder({ onTranscription, onError, disabled = false, language = 'en' }: VoiceRecorderProps) {
+  // Translation helper
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      'stopRecording': {
+        en: 'Stop recording',
+        he: 'עצור הקלטה'
+      }
+    };
+    return translations[key]?.[language] || translations[key]?.['en'] || key;
+  };
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -141,7 +151,7 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false, lang
           <button
             onClick={stopRecording}
             className="p-2 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg animate-pulse"
-            title="Stop recording"
+            title={t('stopRecording')}
           >
             <Square className="w-4 h-4" />
           </button>

@@ -101,8 +101,9 @@ export async function POST(request: NextRequest) {
     await sessionManager.addMessage(session.id, assistantMessage);
 
     // Generate title for new sessions after first exchange
+    let { title } = session;
     if (isNewSession) {
-      const title = await generateConversationTitle(message);
+      title = await generateConversationTitle(message);
       await sessionManager.updateTitle(session.id, title);
     }
 
@@ -110,6 +111,7 @@ export async function POST(request: NextRequest) {
       message: assistantMessage,
       sessionId: session.id,
       mode: response.mode,
+      title: title,
       suggestions: response.suggestions,
       memoryStatus: await sessionManager.getMemoryStatus(session.id)
     });

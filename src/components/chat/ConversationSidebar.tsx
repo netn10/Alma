@@ -11,6 +11,8 @@ interface ConversationSidebarProps {
   onSelectConversation: (sessionId: string) => void;
   onNewConversation: () => void;
   onClose?: () => void;
+  onTitleUpdate?: (sessionId: string, newTitle: string) => void;
+  language?: string;
 }
 
 export function ConversationSidebar({
@@ -18,11 +20,40 @@ export function ConversationSidebar({
   currentSessionId,
   onSelectConversation,
   onNewConversation,
-  onClose
+  onClose,
+  onTitleUpdate,
+  language = 'en'
 }: ConversationSidebarProps) {
   const [conversations, setConversations] = useState<AlmaSession[]>([]);
   const [activeTab, setActiveTab] = useState<'current' | 'history'>('current');
   const [loading, setLoading] = useState(true);
+
+  // Translation helper
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      'conversations': {
+        en: 'Conversations',
+        he: 'שיחות'
+      },
+      'current': {
+        en: 'Current',
+        he: 'נוכחית'
+      },
+      'history': {
+        en: 'History',
+        he: 'היסטוריה'
+      },
+      'loading': {
+        en: 'Loading conversations...',
+        he: 'טוען שיחות...'
+      },
+      'closeSidebar': {
+        en: 'Close sidebar',
+        he: 'סגור סרגל צד'
+      }
+    };
+    return translations[key]?.[language] || translations[key]?.['en'] || key;
+  };
 
   useEffect(() => {
     loadConversations();
@@ -65,6 +96,13 @@ export function ConversationSidebar({
     }
   };
 
+  const handleTitleUpdate = (sessionId: string, newTitle: string) => {
+    setConversations(prev => 
+      prev.map(c => c.id === sessionId ? { ...c, title: newTitle } : c)
+    );
+    onTitleUpdate?.(sessionId, newTitle);
+  };
+
   const currentConversation = conversations.filter(c => c.id === currentSessionId);
   const historyConversations = conversations.filter(c => c.id !== currentSessionId);
 
@@ -72,12 +110,12 @@ export function ConversationSidebar({
     <div className="w-80 h-full bg-card border-r border-border flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-border flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Conversations</h2>
+        <h2 className="text-lg font-semibold">{t('conversations')}</h2>
         {onClose && (
           <button
             onClick={onClose}
             className="p-1 hover:bg-accent rounded transition-all duration-200 hover:scale-110 active:scale-90"
-            aria-label="Close sidebar"
+            aria-label={t('closeSidebar')}
           >
             <X className="w-5 h-5" />
           </button>
@@ -96,7 +134,7 @@ export function ConversationSidebar({
         >
           <div className="flex items-center justify-center gap-2">
             <MessageCircle className="w-4 h-4" />
-            Current
+            {t('current')}
           </div>
         </button>
         <button
@@ -109,7 +147,7 @@ export function ConversationSidebar({
         >
           <div className="flex items-center justify-center gap-2">
             <History className="w-4 h-4" />
-            History ({historyConversations.length})
+            <span>{language === 'he' ? `(${historyConversations.length}) ${t('history')}` : `${t('history')} (${historyConversations.length})`}</span>
           </div>
         </button>
       </div>
@@ -118,7 +156,7 @@ export function ConversationSidebar({
       <div className="flex-1 overflow-hidden">
         {loading ? (
           <div className="p-4 text-center text-muted-foreground">
-            Loading conversations...
+            {t('loading')}
           </div>
         ) : (
           <>
@@ -129,6 +167,8 @@ export function ConversationSidebar({
                 onSelectConversation={onSelectConversation}
                 onDeleteConversation={handleDeleteConversation}
                 onNewConversation={onNewConversation}
+                onTitleUpdate={handleTitleUpdate}
+                language={language}
               />
             ) : (
               <ConversationList
@@ -137,6 +177,8 @@ export function ConversationSidebar({
                 onSelectConversation={onSelectConversation}
                 onDeleteConversation={handleDeleteConversation}
                 onNewConversation={onNewConversation}
+                onTitleUpdate={handleTitleUpdate}
+                language={language}
               />
             )}
           </>

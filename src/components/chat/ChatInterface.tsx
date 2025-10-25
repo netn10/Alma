@@ -6,15 +6,16 @@ import { AlmaMessage, ConversationMode, SessionMemory } from '@/types/alma';
 import { MessageBubble } from './MessageBubble';
 import { ModeSelector } from './ModeSelector';
 import { ConversationSidebar } from './ConversationSidebar';
-import { LanguageSelector } from './LanguageSelector';
+import { ConversationTitle } from './ConversationTitle';
 import { useSpeechRecognition } from './RealTimeSpeechRecognition';
 
 interface ChatInterfaceProps {
   userId: string;
   initialSessionId?: string;
+  voiceLanguage: string;
 }
 
-export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) {
+export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatInterfaceProps) {
   const [messages, setMessages] = useState<AlmaMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +26,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
   const [voiceError, setVoiceError] = useState<string>('');
   const [isRecordingConfirmation, setIsRecordingConfirmation] = useState(false);
   const [userInitiatedRecording, setUserInitiatedRecording] = useState(false);
-  const [voiceLanguage, setVoiceLanguage] = useState<string>('en');
+  const [conversationTitle, setConversationTitle] = useState<string | null>(null);
 
   // Translation helper
   const t = (key: string) => {
@@ -93,28 +94,15 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
       'sendMessage': {
         en: 'Send message',
         he: 'שלח הודעה'
+      },
+      'toggleSidebar': {
+        en: 'Toggle conversations sidebar',
+        he: 'הצג/הסתר סרגל שיחות'
       }
     };
     return translations[key]?.[voiceLanguage] || translations[key]?.['en'] || key;
   };
 
-  // Load voice language preference from settings
-  useEffect(() => {
-    const loadVoiceLanguage = async () => {
-      try {
-        const response = await fetch('/api/settings');
-        if (response.ok) {
-          const data = await response.json();
-          if (data.preferences?.alma?.voiceLanguage) {
-            setVoiceLanguage(data.preferences.alma.voiceLanguage);
-          }
-        }
-      } catch (error) {
-        console.error('Error loading voice language preference:', error);
-      }
-    };
-    loadVoiceLanguage();
-  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -159,6 +147,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
           timestamp: new Date(msg.timestamp)
         })));
         setMode(conversation.mode);
+        setConversationTitle(conversation.title);
       }
     } catch (error) {
       console.error('Failed to load conversation:', error);
@@ -175,6 +164,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
     setMessages([]);
     setMode('ask');
     setSuggestions([]);
+    setConversationTitle(null);
     localStorage.removeItem('lastSessionId');
     setShowSidebar(false);
   };
@@ -222,6 +212,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
       setMessages(prev => [...prev, messageWithDate]);
       setSessionId(data.sessionId);
       setMode(data.mode);
+      setConversationTitle(data.title);
       console.log('Received suggestions:', data.suggestions);
       setSuggestions(data.suggestions || []);
 
@@ -342,6 +333,12 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewConversation}
           onClose={() => setShowSidebar(false)}
+          onTitleUpdate={(updatedSessionId, newTitle) => {
+            if (updatedSessionId === sessionId) {
+              setConversationTitle(newTitle);
+            }
+          }}
+          language={voiceLanguage}
         />
       )}
 
@@ -354,7 +351,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
               <button
                 onClick={() => setShowSidebar(!showSidebar)}
                 className="p-1.5 sm:p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-all duration-200 hover:scale-105 active:scale-95"
-                aria-label="Toggle conversations sidebar"
+                aria-label={t('toggleSidebar')}
               >
                 <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -364,13 +361,21 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
                 language={voiceLanguage}
               />
             </div>
-            <div className="flex items-center space-x-2">
-              <LanguageSelector
-                selectedLanguage={voiceLanguage}
-                onLanguageChange={setVoiceLanguage}
-              />
-            </div>
           </div>
+          
+          {/* Conversation Title */}
+          {sessionId && (
+            <div className="mt-3 flex justify-center">
+              <div className="group">
+                <ConversationTitle
+                  sessionId={sessionId}
+                  title={conversationTitle}
+                  onTitleUpdate={setConversationTitle}
+                  language={voiceLanguage}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
       {/* Messages */}

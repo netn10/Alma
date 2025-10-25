@@ -28,6 +28,29 @@ export function MessageBubble({ message, language = 'en' }: MessageBubbleProps) 
 
   // Determine if we should use RTL
   const isRTL = containsHebrew(message.content) || language === 'he';
+
+  // Translation helper
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      'stop': {
+        en: 'Stop',
+        he: 'עצור'
+      },
+      'speak': {
+        en: 'Speak',
+        he: 'דבר'
+      },
+      'stopSpeaking': {
+        en: 'Stop speaking',
+        he: 'עצור דיבור'
+      },
+      'speakMessage': {
+        en: 'Speak message',
+        he: 'דבר הודעה'
+      }
+    };
+    return translations[key]?.[language] || translations[key]?.['en'] || key;
+  };
   
   // Load voices when component mounts
   useEffect(() => {
@@ -185,14 +208,14 @@ export function MessageBubble({ message, language = 'en' }: MessageBubbleProps) 
                     ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300'
                     : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-600'
                 }`}
-                title={isSpeaking || isPlaying ? "Stop speaking" : "Speak message"}
+                title={isSpeaking || isPlaying ? t('stopSpeaking') : t('speakMessage')}
               >
                 {isSpeaking || isPlaying ? (
                   <VolumeX className="w-3 h-3" />
                 ) : (
                   <Volume2 className="w-3 h-3" />
                 )}
-                <span>{isSpeaking || isPlaying ? 'Stop' : 'Speak'}</span>
+                <span>{isSpeaking || isPlaying ? t('stop') : t('speak')}</span>
               </button>
             </div>
           )}

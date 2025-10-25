@@ -11,6 +11,24 @@ interface VoicePlayerProps {
 }
 
 export function VoicePlayer({ text, onError, autoPlay = false, language = 'en' }: VoicePlayerProps) {
+  // Translation helper
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      'generating': {
+        en: 'Generating...',
+        he: 'מייצר...'
+      },
+      'speak': {
+        en: 'Speak',
+        he: 'דבר'
+      },
+      'stop': {
+        en: 'Stop',
+        he: 'עצור'
+      }
+    };
+    return translations[key]?.[language] || translations[key]?.['en'] || key;
+  };
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -238,7 +256,7 @@ export function VoicePlayer({ text, onError, autoPlay = false, language = 'en' }
         <button
           onClick={stop}
           className="p-2 bg-gray-500 hover:bg-gray-600 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
-          title="Stop"
+          title={t('stop')}
         >
           <VolumeX className="w-4 h-4" />
         </button>
@@ -264,7 +282,7 @@ export function VoicePlayer({ text, onError, autoPlay = false, language = 'en' }
           disabled={isLoading || !text.trim()}
           className="px-3 py-1 text-sm bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-lg"
         >
-          {isLoading ? 'Generating...' : 'Speak'}
+          {isLoading ? t('generating') : t('speak')}
         </button>
       )}
 

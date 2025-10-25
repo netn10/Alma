@@ -43,6 +43,37 @@ export async function GET(request: NextRequest) {
   }
 }
 
+// PUT /api/conversations - Update conversation title
+export async function PUT(request: NextRequest) {
+  try {
+    const { sessionId, title } = await request.json();
+
+    if (!sessionId) {
+      return NextResponse.json(
+        { error: 'sessionId is required' },
+        { status: 400 }
+      );
+    }
+
+    if (title === undefined) {
+      return NextResponse.json(
+        { error: 'title is required' },
+        { status: 400 }
+      );
+    }
+
+    await sessionManager.updateTitle(sessionId, title);
+    return NextResponse.json({ success: true });
+
+  } catch (error) {
+    console.error('Conversation title update error:', error);
+    return NextResponse.json(
+      { error: 'Something went wrong' },
+      { status: 500 }
+    );
+  }
+}
+
 // DELETE /api/conversations - Delete a conversation
 export async function DELETE(request: NextRequest) {
   try {
