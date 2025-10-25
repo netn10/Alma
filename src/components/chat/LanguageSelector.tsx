@@ -50,15 +50,15 @@ export function LanguageSelector({ selectedLanguage, onLanguageChange, className
                   setIsOpen(false);
                 }}
                 className={`w-full flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${
-                  selectedLanguage === language.code 
-                    ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300' 
+                  selectedLanguage === language.code
+                    ? 'bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary'
                     : 'text-gray-700 dark:text-gray-300'
                 }`}
               >
                 <span className="text-lg">{language.flag}</span>
                 <span>{language.name}</span>
                 {selectedLanguage === language.code && (
-                  <span className={`text-blue-600 dark:text-blue-400 ${isRTL ? 'mr-auto' : 'ml-auto'}`}>✓</span>
+                  <span className={`text-primary dark:text-primary ${isRTL ? 'mr-auto' : 'ml-auto'}`}>✓</span>
                 )}
               </button>
             ))}

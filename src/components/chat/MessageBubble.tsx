@@ -187,7 +187,7 @@ export function MessageBubble({ message, language = 'en' }: MessageBubbleProps) 
           <div className={`flex flex-col ${isUser ? 'items-end' : 'items-start'} min-w-0 flex-1`}>
           <div className={`px-3 sm:px-4 py-2 sm:py-3 rounded-2xl ${
             isUser
-              ? 'bg-blue-600 text-white'
+              ? 'bg-primary text-primary-foreground'
               : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600'
           }`}>
             <p 

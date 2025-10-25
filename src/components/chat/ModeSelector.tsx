@@ -52,7 +52,7 @@ export function ModeSelector({ currentMode, onModeChange, language = 'en' }: Mod
           onClick={() => onModeChange(mode)}
           className={`flex items-center space-x-2 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md ${
             currentMode === mode
-              ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-500 border border-blue-200 dark:border-blue-700'
+              ? 'bg-primary/10 dark:bg-primary/30 text-primary dark:text-primary border border-primary/20 dark:border-primary/70'
               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
           title={t(descKey)}

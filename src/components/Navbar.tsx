@@ -23,8 +23,8 @@ export function Navbar({ onNavigate, voiceLanguage = 'en', onLanguageChange }: N
           onClick={() => onNavigate?.('home')}
           className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
         >
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-            <Brain className="w-3 h-3 sm:w-5 sm:h-5 text-blue-600 dark:text-blue-400" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+            <Brain className="w-3 h-3 sm:w-5 sm:h-5 text-primary dark:text-primary" />
           </div>
           <div>
             <h1 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">Alma</h1>

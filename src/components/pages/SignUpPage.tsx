@@ -79,8 +79,8 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-            <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+          <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
+            <Brain className="w-8 h-8 text-primary dark:text-primary" />
           </div>
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
@@ -107,7 +107,7 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Enter your full name"
                 />
                 <User className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -127,7 +127,7 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Enter your email"
                 />
                 <Mail className="absolute right-3 top-2.5 h-5 w-5 text-gray-400" />
@@ -147,7 +147,7 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Create a password"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -179,7 +179,7 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-primary focus:border-primary bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                   placeholder="Confirm your password"
                 />
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3">
@@ -206,7 +206,7 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-primary-foreground bg-primary hover:brightness-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 transition-all duration-200 hover:shadow-lg hover:scale-105 active:scale-95"
               >
                 {isLoading ? 'Creating account...' : 'Create account'}
               </button>
@@ -264,7 +264,7 @@ export function SignUpPage({ onNavigate }: SignUpPageProps) {
               Already have an account?{' '}
               <button 
                 onClick={() => onNavigate('signin')}
-                className="font-medium text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-500"
+                className="font-medium text-primary dark:text-primary hover:brightness-90"
               >
                 Sign in
               </button>

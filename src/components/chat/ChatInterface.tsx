@@ -470,7 +470,7 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
                 <button
                   key={index}
                   onClick={() => handleSuggestionClick(suggestion)}
-                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-500 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md"
+                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary rounded-full hover:bg-primary/20 dark:hover:bg-primary/30 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md"
                   dir={isRTL ? 'rtl' : 'ltr'}
                 >
                   {suggestion}
@@ -499,7 +499,7 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
             className={`flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 ${
               isListening
                 ? 'border-red-500 dark:border-red-600 focus:ring-red-500 bg-red-50 dark:bg-red-900/10'
-                : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 bg-white dark:bg-gray-800'
+                : 'border-gray-300 dark:border-gray-600 focus:ring-primary bg-white dark:bg-gray-800'
             } text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400`}
             dir={voiceLanguage === 'he' ? 'rtl' : 'ltr'}
             disabled={isLoading}
@@ -555,7 +555,7 @@ export function ChatInterface({ userId, initialSessionId, voiceLanguage }: ChatI
           <button
             type="submit"
             disabled={!input.trim() || isLoading}
-            className="px-3 sm:px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 hover:shadow-lg active:scale-95"
+            className="px-3 sm:px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:brightness-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 hover:shadow-lg active:scale-95"
             aria-label={t('sendMessage')}
           >
             <Send className="w-4 h-4 sm:w-5 sm:h-5" />

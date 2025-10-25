@@ -164,7 +164,7 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false, lang
           {!isPlaying ? (
             <button
               onClick={playRecording}
-              className="p-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
+              className="p-2 bg-primary hover:brightness-90 text-primary-foreground rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
               title="Play recording"
             >
               <Play className="w-4 h-4" />

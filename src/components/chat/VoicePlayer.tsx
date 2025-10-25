@@ -239,7 +239,7 @@ export function VoicePlayer({ text, onError, autoPlay = false, language = 'en' }
       <button
         onClick={playPause}
         disabled={isLoading || !text.trim()}
-        className="p-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
+        className="p-2 bg-primary hover:brightness-90 disabled:bg-gray-400 text-primary-foreground rounded-full transition-all duration-200 hover:scale-110 active:scale-95 hover:shadow-lg"
         title={isPlaying ? 'Pause' : 'Play'}
       >
         {isLoading ? (
