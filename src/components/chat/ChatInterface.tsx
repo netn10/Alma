@@ -151,6 +151,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
       setMessages(prev => [...prev, messageWithDate]);
       setSessionId(data.sessionId);
       setMode(data.mode);
+      console.log('Received suggestions:', data.suggestions);
       setSuggestions(data.suggestions || []);
 
     } catch (error) {
@@ -334,8 +335,16 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Suggestions */}
-      {suggestions.length > 0 && !isLoading && (
+      {/* Suggestions - only show after bot has responded */}
+      {(() => {
+        console.log('Suggestions render check:', {
+          suggestionsLength: suggestions.length,
+          isLoading,
+          messagesLength: messages.length,
+          lastMessageRole: messages.length > 0 ? messages[messages.length - 1].role : 'none'
+        });
+        return suggestions.length > 0 && !isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant';
+      })() && (
         <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4">
           <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">Suggestions:</p>
           <div className="flex flex-wrap gap-1.5 sm:gap-2">

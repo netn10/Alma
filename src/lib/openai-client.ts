@@ -117,35 +117,45 @@ Generate 3 brief, goal-oriented suggestions (each under 10 words) written from t
 - Guide the user toward clarity, resolution, or forward movement
 ${languageInstruction}
 
-IMPORTANT: You MUST respond with ONLY a JSON array, nothing else. No explanations, no apologies, no extra text.
+IMPORTANT: You MUST respond with ONLY a valid JSON array, nothing else. No explanations, no apologies, no extra text. Do not wrap it in any object.
 Format: ["suggestion 1", "suggestion 2", "suggestion 3"]`;
 
       const response = await openai.chat.completions.create({
         model: 'gpt-4o',
         messages: [{ role: 'user', content: suggestionPrompt }],
         temperature: 0.8,
-        max_tokens: 150,
-        response_format: { type: 'json_object' }
+        max_tokens: 150
       });
 
-      const content = response.choices[0]?.message?.content || '{"suggestions":[]}';
+      const content = response.choices[0]?.message?.content || '[]';
 
-      // Try to parse as JSON object first (in case it wraps in an object)
+      // Try to parse as JSON array first
       let suggestions;
       try {
         const parsed = JSON.parse(content);
-        suggestions = parsed.suggestions || parsed;
+        // If it's wrapped in an object with suggestions key
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          suggestions = parsed.suggestions || Object.values(parsed)[0] || [];
+        } else {
+          suggestions = parsed;
+        }
       } catch {
-        // If that fails, try to extract JSON array from the content
-        const match = content.match(/\[(.*?)\]/s);
-        if (match) {
-          suggestions = JSON.parse(`[${match[1]}]`);
+        // If parsing fails, try to extract JSON array from the content
+        const arrayMatch = content.match(/\[([^\]]*)\]/);
+        if (arrayMatch) {
+          try {
+            suggestions = JSON.parse(arrayMatch[0]);
+          } catch {
+            suggestions = [];
+          }
         } else {
           suggestions = [];
         }
       }
 
-      return Array.isArray(suggestions) ? suggestions.slice(0, 3) : [];
+      console.log('Generated suggestions:', suggestions);
+
+      return Array.isArray(suggestions) ? suggestions.slice(0, 3).filter(Boolean) : [];
     } catch (error) {
       console.error('Failed to generate suggestions:', error);
       // Fallback to empty array if generation fails
