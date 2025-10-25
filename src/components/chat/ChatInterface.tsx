@@ -27,6 +27,77 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
   const [userInitiatedRecording, setUserInitiatedRecording] = useState(false);
   const [voiceLanguage, setVoiceLanguage] = useState<string>('en');
 
+  // Translation helper
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      'placeholder': {
+        en: 'What would you like to explore?',
+        he: 'מה תרצה לחקור?'
+      },
+      'listening': {
+        en: 'Listening... speak now',
+        he: 'מקשיב... דבר עכשיו'
+      },
+      'welcome': {
+        en: 'Welcome to Alma',
+        he: 'ברוכים הבאים לאלמה'
+      },
+      'welcomeMessage': {
+        en: "I'm here to help you think, decide, and communicate better.",
+        he: 'אני כאן כדי לעזור לך לחשוב, להחליט ולתקשר טוב יותר.'
+      },
+      'thinking': {
+        en: 'Alma is thinking...',
+        he: 'אלמה חושבת...'
+      },
+      'suggestions': {
+        en: 'Suggestions:',
+        he: 'הצעות:'
+      },
+      'accept': {
+        en: 'Accept',
+        he: 'אישור'
+      },
+      'cancel': {
+        en: 'Cancel',
+        he: 'ביטול'
+      },
+      'ask': {
+        en: 'Bring a question or dilemma',
+        he: 'הבא שאלה או דילמה'
+      },
+      'reflect': {
+        en: 'Explore feelings or context',
+        he: 'חקור רגשות או הקשר'
+      },
+      'quiet': {
+        en: 'Alma remains silent unless prompted',
+        he: 'אלמה נשארת שקטה אלא אם כן מבקשים'
+      },
+      'stopRecording': {
+        en: 'Stop recording',
+        he: 'עצור הקלטה'
+      },
+      'startVoice': {
+        en: 'Start voice input',
+        he: 'התחל קלט קול'
+      },
+      'clickStop': {
+        en: 'Click to stop',
+        he: 'לחץ לעצור'
+      },
+      'clickSpeak': {
+        en: 'Click to speak',
+        he: 'לחץ לדבר'
+      },
+      'sendMessage': {
+        en: 'Send message',
+        he: 'שלח הודעה'
+      }
+    };
+    return translations[key]?.[voiceLanguage] || translations[key]?.['en'] || key;
+  };
+
   // Load voice language preference from settings
   useEffect(() => {
     const loadVoiceLanguage = async () => {
@@ -255,9 +326,9 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
 
   const getModeDescription = (currentMode: ConversationMode) => {
     switch (currentMode) {
-      case 'ask': return 'Bring a question or dilemma';
-      case 'reflect': return 'Explore feelings or context';
-      case 'quiet': return 'Alma remains silent unless prompted';
+      case 'ask': return t('ask');
+      case 'reflect': return t('reflect');
+      case 'quiet': return t('quiet');
     }
   };
 
@@ -290,6 +361,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
               <ModeSelector
                 currentMode={mode}
                 onModeChange={handleModeChange}
+                language={voiceLanguage}
               />
             </div>
             <div className="flex items-center space-x-2">
@@ -307,10 +379,10 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
           <div className="text-center py-6 sm:py-8">
             <Brain className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3 sm:mb-4" />
             <h3 className="text-base sm:text-lg font-medium text-gray-900 dark:text-white mb-2">
-              Welcome to Alma
+              {t('welcome')}
             </h3>
             <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mb-3 sm:mb-4 px-4">
-              I'm here to help you think, decide, and communicate better.
+              {t('welcomeMessage')}
             </p>
             <div className="flex items-center justify-center space-x-2 text-xs sm:text-sm text-gray-400 dark:text-gray-500">
               {getModeIcon(mode)}
@@ -328,7 +400,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
             <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce"></div>
             <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
             <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-            <span className="ml-2">Alma is thinking...</span>
+            <span className="ml-2">{t('thinking')}</span>
           </div>
         )}
 
@@ -346,17 +418,21 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
         return suggestions.length > 0 && !isLoading && messages.length > 0 && messages[messages.length - 1].role === 'assistant';
       })() && (
         <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 p-3 sm:p-4">
-          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">Suggestions:</p>
+          <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-2">{t('suggestions')}</p>
           <div className="flex flex-wrap gap-1.5 sm:gap-2">
-            {suggestions.map((suggestion, index) => (
-              <button
-                key={index}
-                onClick={() => handleSuggestionClick(suggestion)}
-                className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-500 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md"
-              >
-                {suggestion}
-              </button>
-            ))}
+            {suggestions.map((suggestion, index) => {
+              const isRTL = /[\u0590-\u05FF]/.test(suggestion) || voiceLanguage === 'he';
+              return (
+                <button
+                  key={index}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="px-2 sm:px-3 py-1 text-xs sm:text-sm bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-500 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md"
+                  dir={isRTL ? 'rtl' : 'ltr'}
+                >
+                  {suggestion}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -375,12 +451,13 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={isListening ? "Listening... speak now" : "What would you like to explore?"}
+            placeholder={isListening ? t('listening') : t('placeholder')}
             className={`flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:ring-2 focus:border-transparent transition-all duration-200 ${
               isListening
                 ? 'border-red-500 dark:border-red-600 focus:ring-red-500 bg-red-50 dark:bg-red-900/10'
                 : 'border-gray-300 dark:border-gray-600 focus:ring-blue-500 bg-white dark:bg-gray-800'
             } text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400`}
+            dir={voiceLanguage === 'he' ? 'rtl' : 'ltr'}
             disabled={isLoading}
           />
 
@@ -393,8 +470,8 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
                 onClick={handleCancelRecording}
                 disabled={isLoading}
                 className="px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 shadow-lg shadow-red-500/50 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Cancel recording"
-                title="Cancel recording"
+                aria-label={t('cancel')}
+                title={t('cancel')}
               >
                 <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -404,8 +481,8 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
                 onClick={handleAcceptRecording}
                 disabled={isLoading}
                 className="px-3 sm:px-4 py-2 rounded-lg flex items-center justify-center transition-all duration-200 active:scale-95 bg-green-600 dark:bg-green-700 hover:bg-green-700 dark:hover:bg-green-800 shadow-lg shadow-green-500/50 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                aria-label="Accept recording"
-                title="Accept recording"
+                aria-label={t('accept')}
+                title={t('accept')}
               >
                 <Check className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
@@ -420,8 +497,8 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
                   ? 'bg-red-600 dark:bg-red-700 hover:bg-red-700 dark:hover:bg-red-800 shadow-lg shadow-red-500/50'
                   : 'bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 hover:shadow-lg'
               } text-white disabled:opacity-50 disabled:cursor-not-allowed`}
-              aria-label={isListening ? 'Stop recording' : 'Start voice input'}
-              title={isListening ? 'Click to stop' : 'Click to speak'}
+              aria-label={isListening ? t('stopRecording') : t('startVoice')}
+              title={isListening ? t('clickStop') : t('clickSpeak')}
             >
               {isListening ? (
                 <Pause className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" />
@@ -435,7 +512,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
             type="submit"
             disabled={!input.trim() || isLoading}
             className="px-3 sm:px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center transition-all duration-200 hover:shadow-lg active:scale-95"
-            aria-label="Send message"
+            aria-label={t('sendMessage')}
           >
             <Send className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>

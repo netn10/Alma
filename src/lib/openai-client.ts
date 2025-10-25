@@ -21,7 +21,7 @@ export class AlmaOpenAIClient {
       // Log messages being sent to OpenAI for debugging
       console.log('Generating response with messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 50) })));
       
-      const systemMessage = this.buildSystemMessage(mode);
+      const systemMessage = this.buildSystemMessage(mode, language);
       const openaiMessages = [
         { role: 'system', content: systemMessage },
         ...messages.map(msg => ({
@@ -59,10 +59,11 @@ export class AlmaOpenAIClient {
     }
   }
 
-  private buildSystemMessage(mode: string): string {
+  private buildSystemMessage(mode: string, language?: string): string {
     const basePrompt = this.config.systemPrompt;
     const modeInstructions = this.getModeInstructions(mode);
-    return `${basePrompt}\n\nCurrent mode: ${mode.toUpperCase()}\n${modeInstructions}`;
+    const languageInstruction = language === 'he' ? '\n\nIMPORTANT: When responding in Hebrew, write in Hebrew script (עברית) and ensure text direction is right-to-left.' : '';
+    return `${basePrompt}\n\nCurrent mode: ${mode.toUpperCase()}\n${modeInstructions}${languageInstruction}`;
   }
 
   private getModeInstructions(mode: string): string {
@@ -100,7 +101,7 @@ export class AlmaOpenAIClient {
     try {
       const modeContext = this.getSuggestionContext(mode);
       const languageInstruction = language === 'he' ? '\n\nIMPORTANT: Generate the suggestions in Hebrew (עברית).' : '';
-      const suggestionPrompt = `Based on this conversation, generate 3 smart, actionable suggestions that help the user move forward with their specific situation.
+      const suggestionPrompt = `Based on this conversation, generate 3 natural follow-up prompts the user might want to say or ask next.
 
 Current mode: ${mode.toUpperCase()}
 ${modeContext}
@@ -110,11 +111,11 @@ ${conversationHistory.slice(-3).map(msg => `${msg.role}: ${msg.content}`).join('
 
 Your last response: ${lastResponse}
 
-Generate 3 brief, goal-oriented suggestions (each under 10 words) written from the USER's perspective. These should:
-- Be directly relevant to the user's specific situation and needs
-- Point toward concrete next actions or decisions
-- Be specific to the conversation context, not generic
-- Guide the user toward clarity, resolution, or forward movement
+Generate 3 brief prompts (each under 10 words) that the USER might naturally say next. These should be:
+- Written as if the user is speaking/typing them (first-person, conversational)
+- Natural extensions or follow-up questions from the user's perspective
+- Directly related to the conversation topic
+- Things the user would actually say, like "Tell me more about that" or "How do I get started?"
 ${languageInstruction}
 
 IMPORTANT: You MUST respond with ONLY a valid JSON array, nothing else. No explanations, no apologies, no extra text. Do not wrap it in any object.

@@ -21,6 +21,14 @@ export function MessageBubble({ message, language = 'en' }: MessageBubbleProps) 
     minute: '2-digit' 
   });
 
+  // Helper function to detect Hebrew text
+  const containsHebrew = (text: string): boolean => {
+    return /[\u0590-\u05FF]/.test(text);
+  };
+
+  // Determine if we should use RTL
+  const isRTL = containsHebrew(message.content) || language === 'he';
+  
   // Load voices when component mounts
   useEffect(() => {
     const loadVoices = () => {
@@ -159,7 +167,12 @@ export function MessageBubble({ message, language = 'en' }: MessageBubbleProps) 
               ? 'bg-blue-600 text-white'
               : 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border border-gray-200 dark:border-gray-600'
           }`}>
-            <p className="text-sm sm:text-sm whitespace-pre-wrap break-words">{message.content}</p>
+            <p 
+              className="text-sm sm:text-sm whitespace-pre-wrap break-words"
+              dir={isRTL ? 'rtl' : 'ltr'}
+            >
+              {message.content}
+            </p>
           </div>
           
           {/* Speech button for assistant messages only */}

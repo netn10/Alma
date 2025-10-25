@@ -6,33 +6,47 @@ import { MessageCircle, Brain, VolumeX } from 'lucide-react';
 interface ModeSelectorProps {
   currentMode: ConversationMode;
   onModeChange: (mode: ConversationMode) => void;
+  language?: string;
 }
 
-export function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
-  const modes: { mode: ConversationMode; label: string; icon: React.ReactNode; description: string }[] = [
+export function ModeSelector({ currentMode, onModeChange, language = 'en' }: ModeSelectorProps) {
+  // Translation helper
+  const t = (key: string) => {
+    const translations: Record<string, Record<string, string>> = {
+      'askLabel': { en: 'Ask', he: 'שאל' },
+      'reflectLabel': { en: 'Reflect', he: 'הרהר' },
+      'quietLabel': { en: 'Quiet', he: 'שקטה' },
+      'askDesc': { en: 'Bring a question or dilemma', he: 'הבא שאלה או דילמה' },
+      'reflectDesc': { en: 'Explore feelings or context', he: 'חקור רגשות או הקשר' },
+      'quietDesc': { en: 'Alma remains silent unless prompted', he: 'אלמה נשארת שקטה אלא אם כן מבקשים' }
+    };
+    return translations[key]?.[language] || translations[key]?.['en'] || key;
+  };
+
+  const modes: { mode: ConversationMode; labelKey: string; descKey: string; icon: React.ReactNode }[] = [
     {
       mode: 'ask',
-      label: 'Ask',
-      icon: <MessageCircle className="w-4 h-4" />,
-      description: 'Bring a question or dilemma'
+      labelKey: 'askLabel',
+      descKey: 'askDesc',
+      icon: <MessageCircle className="w-4 h-4" />
     },
     {
       mode: 'reflect',
-      label: 'Reflect',
-      icon: <Brain className="w-4 h-4" />,
-      description: 'Explore feelings or context'
+      labelKey: 'reflectLabel',
+      descKey: 'reflectDesc',
+      icon: <Brain className="w-4 h-4" />
     },
     {
       mode: 'quiet',
-      label: 'Quiet',
-      icon: <VolumeX className="w-4 h-4" />,
-      description: 'Alma remains silent unless prompted'
+      labelKey: 'quietLabel',
+      descKey: 'quietDesc',
+      icon: <VolumeX className="w-4 h-4" />
     }
   ];
 
   return (
     <div className="flex items-center space-x-1">
-      {modes.map(({ mode, label, icon, description }) => (
+      {modes.map(({ mode, labelKey, descKey, icon }) => (
         <button
           key={mode}
           onClick={() => onModeChange(mode)}
@@ -41,10 +55,11 @@ export function ModeSelector({ currentMode, onModeChange }: ModeSelectorProps) {
               ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-500 border border-blue-200 dark:border-blue-700'
               : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
           }`}
-          title={description}
+          title={t(descKey)}
+          dir={language === 'he' ? 'rtl' : 'ltr'}
         >
           {icon}
-          <span>{label}</span>
+          <span>{t(labelKey)}</span>
         </button>
       ))}
     </div>
