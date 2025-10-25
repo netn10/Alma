@@ -21,6 +21,8 @@ interface UserSettings {
   email: string;
   emailNotifications: boolean;
   theme: 'light' | 'dark' | 'system';
+  gender?: 'male' | 'female' | 'other' | 'prefer-not-to-say';
+  aboutMe?: string;
 }
 
 interface AlmaSettings {
@@ -89,6 +91,42 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
       'emailCannotBeChanged': {
         en: 'Email cannot be changed. Contact support if needed.',
         he: 'לא ניתן לשנות את האימייל. פנה לתמיכה במידת הצורך.'
+      },
+      'gender': {
+        en: 'Gender',
+        he: 'מגדר'
+      },
+      'genderDescription': {
+        en: 'This helps Alma use appropriate pronouns when referring to you',
+        he: 'זה עוזר לאלמה להשתמש בכינויים מתאימים כשהיא מתייחסת אליך'
+      },
+      'male': {
+        en: 'Male',
+        he: 'זכר'
+      },
+      'female': {
+        en: 'Female',
+        he: 'נקבה'
+      },
+      'other': {
+        en: 'Other',
+        he: 'אחר'
+      },
+      'preferNotToSay': {
+        en: 'Prefer not to say',
+        he: 'מעדיף/ה שלא לומר'
+      },
+      'aboutMe': {
+        en: 'About Me',
+        he: 'אודותיי'
+      },
+      'aboutMeDescription': {
+        en: 'Tell Alma about yourself so she can provide more personalized responses',
+        he: 'ספר לאלמה על עצמך כדי שהיא תוכל לספק תגובות מותאמות יותר'
+      },
+      'aboutMePlaceholder': {
+        en: 'E.g., your interests, goals, preferences, or anything else you\'d like Alma to know about you...',
+        he: 'לדוגמה, תחומי העניין שלך, מטרות, העדפות, או כל דבר אחר שתרצה שאלמה תדע עליך...'
       },
       'saveProfile': {
         en: 'Save Profile',
@@ -278,10 +316,6 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
         en: 'Save Notification Settings',
         he: 'שמור הגדרות התראות'
       },
-      'appearance': {
-        en: 'Appearance',
-        he: 'מראה'
-      },
       'theme': {
         en: 'Theme',
         he: 'ערכת נושא'
@@ -315,7 +349,9 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
     name: session?.user?.name || '',
     email: session?.user?.email || '',
     emailNotifications: true,
-    theme: 'system'
+    theme: 'system',
+    gender: 'female', // Default to female as per requirements
+    aboutMe: ''
   });
 
   const [almaSettings, setAlmaSettings] = useState<AlmaSettings>({
@@ -488,6 +524,42 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
                       />
                       <p className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${language === 'he' ? 'text-right' : 'text-left'}`}>
                         {t('emailCannotBeChanged')}
+                      </p>
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${language === 'he' ? 'text-right' : 'text-left'}`}>
+                        {t('gender')}
+                      </label>
+                      <select
+                        value={userSettings.gender || 'female'}
+                        onChange={(e) => setUserSettings(prev => ({
+                          ...prev,
+                          gender: e.target.value as 'male' | 'female' | 'other' | 'prefer-not-to-say'
+                        }))}
+                        className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white ${language === 'he' ? 'text-right' : 'text-left'}`}
+                      >
+                        <option value="female">{t('female')}</option>
+                        <option value="male">{t('male')}</option>
+                        <option value="other">{t('other')}</option>
+                        <option value="prefer-not-to-say">{t('preferNotToSay')}</option>
+                      </select>
+                      <p className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${language === 'he' ? 'text-right' : 'text-left'}`}>
+                        {t('genderDescription')}
+                      </p>
+                    </div>
+                    <div>
+                      <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${language === 'he' ? 'text-right' : 'text-left'}`}>
+                        {t('aboutMe')}
+                      </label>
+                      <textarea
+                        value={userSettings.aboutMe || ''}
+                        onChange={(e) => setUserSettings(prev => ({ ...prev, aboutMe: e.target.value }))}
+                        placeholder={t('aboutMePlaceholder')}
+                        rows={4}
+                        className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent ${language === 'he' ? 'text-right' : 'text-left'}`}
+                      />
+                      <p className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${language === 'he' ? 'text-right' : 'text-left'}`}>
+                        {t('aboutMeDescription')}
                       </p>
                     </div>
                     <Button

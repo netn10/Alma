@@ -5,7 +5,7 @@ import { Globe } from 'lucide-react';
 
 interface LanguageSelectorProps {
   selectedLanguage: string;
-  onLanguageChange: (language: string) => void;
+  onLanguageChange?: (language: string) => void;
   className?: string;
   isRTL?: boolean;
 }
@@ -46,7 +46,7 @@ export function LanguageSelector({ selectedLanguage, onLanguageChange, className
               <button
                 key={language.code}
                 onClick={() => {
-                  onLanguageChange(language.code);
+                  onLanguageChange?.(language.code);
                   setIsOpen(false);
                 }}
                 className={`w-full flex items-center ${isRTL ? 'space-x-reverse space-x-3' : 'space-x-3'} px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200 ${

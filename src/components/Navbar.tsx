@@ -5,7 +5,7 @@ import { useSession } from 'next-auth/react';
 import { UserMenu } from './auth/UserMenu';
 import { ThemeToggle } from './ui/ThemeToggle';
 import { LanguageSelector } from './chat/LanguageSelector';
-import { Brain } from 'lucide-react';
+import { AlmaLogo } from './ui/AlmaLogo';
 
 interface NavbarProps {
   onNavigate?: (route: 'home' | 'signin' | 'signup' | 'settings') => void;
@@ -19,12 +19,12 @@ export function Navbar({ onNavigate, voiceLanguage = 'en', onLanguageChange }: N
   return (
     <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-3 sm:px-4 py-2 flex justify-between items-center">
       <div className="flex items-center space-x-2 sm:space-x-3">
-        <button 
+        <button
           onClick={() => onNavigate?.('home')}
-          className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity"
+          className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity group"
         >
-          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-primary/10 dark:bg-primary/20 rounded-full flex items-center justify-center">
-            <Brain className="w-3 h-3 sm:w-5 sm:h-5 text-primary dark:text-primary" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-transform group-hover:scale-110">
+            <AlmaLogo size={32} className="w-6 h-6 sm:w-8 sm:h-8" />
           </div>
           <div>
             <h1 className="text-sm sm:text-lg font-semibold text-gray-900 dark:text-white">Alma</h1>

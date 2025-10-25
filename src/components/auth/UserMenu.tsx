@@ -5,7 +5,7 @@ import { User, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
 
 interface UserMenuProps {
-  onNavigate: (route: 'home' | 'signin' | 'signup' | 'settings') => void;
+  onNavigate?: (route: 'home' | 'signin' | 'signup' | 'settings') => void;
   isRTL?: boolean;
 }
 
@@ -49,7 +49,7 @@ export function UserMenu({ onNavigate, isRTL = false }: UserMenuProps) {
             <button
               onClick={() => {
                 setIsOpen(false);
-                onNavigate('settings');
+                onNavigate?.('settings');
               }}
               className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 ${isRTL ? 'hover:-translate-x-1' : 'hover:translate-x-1'}`}
             >

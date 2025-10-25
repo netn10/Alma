@@ -61,7 +61,7 @@ export class AlmaOpenAIClient {
 
       // For quiet mode, generate reasoning but don't prepend it to the response
       // The reasoning will be handled separately in the frontend
-      let quietModeReasoning = null;
+      let quietModeReasoning: string | undefined = undefined;
       if (mode === 'quiet' && fullResponse.trim()) {
         quietModeReasoning = await this.generateQuietModeReasoning(messages, fullResponse, language);
       }

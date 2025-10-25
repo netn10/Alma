@@ -4,9 +4,11 @@ import { SessionManager } from '@/lib/session-manager';
 import { ALMA_SYSTEM_PROMPT, TONE_RULES, DEFAULT_BEHAVIOR_SETTINGS } from '@/lib/alma-config';
 import { v4 as uuidv4 } from 'uuid';
 import OpenAI from 'openai';
+import { PrismaClient } from '@prisma/client';
 
 const sessionManager = new SessionManager();
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const prisma = new PrismaClient();
 
 async function generateConversationTitle(firstMessage: string): Promise<string> {
   try {
@@ -78,9 +80,47 @@ export async function POST(request: NextRequest) {
     // Log session messages for debugging
     console.log('Session messages:', session.messages.map(m => ({ role: m.role, content: m.content.substring(0, 50) })));
 
-    // Initialize OpenAI client
+    // Fetch user settings to personalize system prompt
+    let userContext = '';
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { preferences: true }
+      });
+
+      if (user?.preferences) {
+        const preferences = JSON.parse(user.preferences);
+        const userSettings = preferences?.user;
+
+        if (userSettings) {
+          const gender = userSettings.gender || 'female';
+          const aboutMe = userSettings.aboutMe;
+          const name = userSettings.name;
+
+          // Determine pronouns based on gender
+          let pronouns = { subject: 'she', object: 'her', possessive: 'her' };
+          if (gender === 'male') {
+            pronouns = { subject: 'he', object: 'him', possessive: 'his' };
+          } else if (gender === 'other' || gender === 'prefer-not-to-say') {
+            pronouns = { subject: 'they', object: 'them', possessive: 'their' };
+          }
+
+          // Build user context for system prompt
+          userContext = `\n\nUSER CONTEXT:\n- The user's name is ${name || 'not specified'}.\n- When referring to the user, use pronouns: ${pronouns.subject}/${pronouns.object}/${pronouns.possessive}.`;
+
+          if (aboutMe && aboutMe.trim()) {
+            userContext += `\n- About the user: ${aboutMe}`;
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user settings:', error);
+      // Continue without user context if there's an error
+    }
+
+    // Initialize OpenAI client with personalized system prompt
     const almaClient = new AlmaOpenAIClient({
-      systemPrompt: ALMA_SYSTEM_PROMPT,
+      systemPrompt: ALMA_SYSTEM_PROMPT + userContext,
       toneRules: TONE_RULES,
       behaviorSettings: DEFAULT_BEHAVIOR_SETTINGS
     });
