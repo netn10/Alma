@@ -9,7 +9,10 @@ import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Switch } from '@/components/Switch';
 import { Input } from '@/components/Input';
-import Link from 'next/link';
+
+interface SettingsPageProps {
+  onNavigate: (route: 'home' | 'signin' | 'signup' | 'settings') => void;
+}
 
 interface UserSettings {
   name: string;
@@ -36,7 +39,7 @@ interface PrivacySettings {
   shareAnonymousUsage: boolean;
 }
 
-export default function SettingsPage() {
+export function SettingsPage({ onNavigate }: SettingsPageProps) {
   const { data: session, update } = useSession();
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
@@ -159,10 +162,13 @@ export default function SettingsPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center space-x-4">
-                <Link href="/" className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all duration-200 hover:translate-x-[-4px]">
+                <button 
+                  onClick={() => onNavigate('home')}
+                  className="flex items-center text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-all duration-200 hover:translate-x-[-4px]"
+                >
                   <ArrowLeft className="w-5 h-5 mr-2" />
                   Back to Alma
-                </Link>
+                </button>
                 <div className="h-6 w-px bg-gray-200 dark:bg-gray-600" />
                 <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Settings</h1>
               </div>

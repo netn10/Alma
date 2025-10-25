@@ -3,9 +3,12 @@
 import { useSession, signOut } from 'next-auth/react';
 import { User, LogOut, Settings } from 'lucide-react';
 import { useState } from 'react';
-import Link from 'next/link';
 
-export function UserMenu() {
+interface UserMenuProps {
+  onNavigate: (route: 'home' | 'signin' | 'signup' | 'settings') => void;
+}
+
+export function UserMenu({ onNavigate }: UserMenuProps) {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -42,14 +45,16 @@ export function UserMenu() {
               <p className="font-medium">{session.user.name}</p>
               <p className="text-gray-500 dark:text-gray-400">{session.user.email}</p>
             </div>
-            <Link
-              href="/settings"
-              onClick={() => setIsOpen(false)}
+            <button
+              onClick={() => {
+                setIsOpen(false);
+                onNavigate('settings');
+              }}
               className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:translate-x-1"
             >
               <Settings className="w-4 h-4 mr-3" />
               Settings
-            </Link>
+            </button>
             <button
               onClick={() => signOut({ callbackUrl: '/auth/signin' })}
               className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:translate-x-1"
