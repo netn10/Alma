@@ -16,9 +16,9 @@ export function Button({
   const baseClasses = 'inline-flex items-center justify-center rounded-md font-medium transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-md active:scale-95';
   
   const variantClasses = {
-    primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500',
-    secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
-    danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500'
+    primary: 'bg-primary text-primary-foreground hover:opacity-90 focus:ring-primary',
+    secondary: 'bg-secondary text-secondary-foreground hover:opacity-90 focus:ring-secondary',
+    danger: 'bg-destructive text-destructive-foreground hover:opacity-90 focus:ring-destructive'
   };
   
   const sizeClasses = {

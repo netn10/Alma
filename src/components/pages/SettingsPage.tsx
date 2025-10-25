@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { ColorThemeSelector } from '@/components/ui/ColorThemeSelector';
 import { User, Bell, Brain, Shield, Palette } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
@@ -884,41 +885,49 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
 
               {/* Appearance Tab */}
               {activeTab === 'appearance' && (
-                <Card className="p-6">
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">{t('appearance')}</h2>
-                  <div className="space-y-4">
-                    <div className={`flex items-center justify-between ${language === 'he' ? 'flex-row-reverse' : ''}`}>
-                      {language === 'he' ? (
-                        <>
-                          <ThemeToggle />
-                          <div className="text-right">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              {t('theme')}
-                            </label>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t('themeDescription')}
-                            </p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className="text-left">
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                              {t('theme')}
-                            </label>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">
-                              {t('themeDescription')}
-                            </p>
-                          </div>
-                          <ThemeToggle />
-                        </>
-                      )}
+                <div className="space-y-6">
+                  <Card className="p-6">
+                    <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">{t('appearance')}</h2>
+                    <div className="space-y-6">
+                      {/* Light/Dark Mode Toggle */}
+                      <div className={`flex items-center justify-between ${language === 'he' ? 'flex-row-reverse' : ''}`}>
+                        {language === 'he' ? (
+                          <>
+                            <ThemeToggle />
+                            <div className="text-right">
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {t('theme')}
+                              </label>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {t('themeDescription')}
+                              </p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="text-left">
+                              <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                {t('theme')}
+                              </label>
+                              <p className="text-xs text-gray-500 dark:text-gray-400">
+                                {t('themeDescription')}
+                              </p>
+                            </div>
+                            <ThemeToggle />
+                          </>
+                        )}
+                      </div>
+                      <p className={`text-sm text-gray-600 dark:text-gray-400 ${language === 'he' ? 'text-right' : 'text-left'}`}>
+                        {t('themeToggleDescription')}
+                      </p>
                     </div>
-                    <p className={`text-sm text-gray-600 dark:text-gray-400 ${language === 'he' ? 'text-right' : 'text-left'}`}>
-                      {t('themeToggleDescription')}
-                    </p>
-                  </div>
-                </Card>
+                  </Card>
+
+                  {/* Color Theme Selector */}
+                  <Card className="p-6">
+                    <ColorThemeSelector language={language} />
+                  </Card>
+                </div>
               )}
             </div>
           </div>
