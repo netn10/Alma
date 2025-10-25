@@ -5,11 +5,12 @@ interface SwitchProps {
   onChange: (checked: boolean) => void;
   disabled?: boolean;
   label?: string;
+  isRTL?: boolean;
 }
 
-export function Switch({ checked, onChange, disabled = false, label }: SwitchProps) {
+export function Switch({ checked, onChange, disabled = false, label, isRTL = false }: SwitchProps) {
   return (
-    <div className="flex items-center">
+    <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
       <button
         type="button"
         className={`relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-all duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 hover:scale-105 active:scale-95 ${
@@ -22,12 +23,12 @@ export function Switch({ checked, onChange, disabled = false, label }: SwitchPro
       >
         <span
           className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-lg ring-0 transition-all duration-200 ease-in-out ${
-            checked ? 'translate-x-5 scale-110' : 'translate-x-0'
+            checked ? (isRTL ? 'translate-x-0 scale-110' : 'translate-x-5 scale-110') : (isRTL ? '-translate-x-5' : 'translate-x-0')
           }`}
         />
       </button>
       {label && (
-        <label className="ml-3 text-sm text-gray-700 dark:text-gray-300">
+        <label className={`text-sm text-gray-700 dark:text-gray-300 ${isRTL ? 'mr-3' : 'ml-3'}`}>
           {label}
         </label>
       )}

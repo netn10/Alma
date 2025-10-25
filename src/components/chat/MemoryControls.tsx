@@ -6,15 +6,16 @@ import { Brain, BrainCircuit, Shield, Trash2 } from 'lucide-react';
 interface MemoryControlsProps {
   memoryStatus: SessionMemory | null;
   onMemoryAction: (action: string) => void;
+  language?: string;
 }
 
-export function MemoryControls({ memoryStatus, onMemoryAction }: MemoryControlsProps) {
+export function MemoryControls({ memoryStatus, onMemoryAction, language = 'en' }: MemoryControlsProps) {
   if (!memoryStatus) return null;
 
   return (
-    <div className="flex items-center space-x-2">
+    <div className={`flex items-center ${language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
       {/* Memory Status Indicator */}
-      <div className="flex items-center space-x-2 text-sm">
+      <div className={`flex items-center ${language === 'he' ? 'space-x-reverse space-x-2' : 'space-x-2'} text-sm`}>
         <div className={`w-2 h-2 rounded-full ${
           memoryStatus.isActive ? 'bg-green-500' : 'bg-gray-400 dark:bg-gray-500'
         }`} />
@@ -24,7 +25,7 @@ export function MemoryControls({ memoryStatus, onMemoryAction }: MemoryControlsP
       </div>
 
       {/* Memory Controls */}
-      <div className="flex items-center space-x-1">
+      <div className={`flex items-center ${language === 'he' ? 'space-x-reverse space-x-1' : 'space-x-1'}`}>
         {/* Toggle Memory */}
         <button
           onClick={() => onMemoryAction('toggle')}

@@ -6,9 +6,10 @@ import { useState } from 'react';
 
 interface UserMenuProps {
   onNavigate: (route: 'home' | 'signin' | 'signup' | 'settings') => void;
+  isRTL?: boolean;
 }
 
-export function UserMenu({ onNavigate }: UserMenuProps) {
+export function UserMenu({ onNavigate, isRTL = false }: UserMenuProps) {
   const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -18,7 +19,7 @@ export function UserMenu({ onNavigate }: UserMenuProps) {
     <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-2 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+        className={`flex flex-col items-center ${isRTL ? 'space-y-reverse space-y-1' : 'space-y-1'} text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95`}
       >
         {session.user.image ? (
           <img
@@ -40,7 +41,7 @@ export function UserMenu({ onNavigate }: UserMenuProps) {
             className="fixed inset-0 z-10"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-20 border border-gray-200 dark:border-gray-700">
+          <div className={`absolute mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg py-1 z-20 border border-gray-200 dark:border-gray-700 ${isRTL ? 'left-0' : 'right-0'}`}>
             <div className="px-4 py-2 text-sm text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
               <p className="font-medium">{session.user.name}</p>
               <p className="text-gray-500 dark:text-gray-400">{session.user.email}</p>
@@ -50,16 +51,16 @@ export function UserMenu({ onNavigate }: UserMenuProps) {
                 setIsOpen(false);
                 onNavigate('settings');
               }}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:translate-x-1"
+              className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 ${isRTL ? 'hover:-translate-x-1' : 'hover:translate-x-1'}`}
             >
-              <Settings className="w-4 h-4 mr-3" />
+              <Settings className={`w-4 h-4 ${isRTL ? 'ml-3' : 'mr-3'}`} />
               Settings
             </button>
             <button
               onClick={() => signOut({ callbackUrl: '/auth/signin' })}
-              className="flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 hover:translate-x-1"
+              className={`flex items-center w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-all duration-200 ${isRTL ? 'hover:-translate-x-1' : 'hover:translate-x-1'}`}
             >
-              <LogOut className="w-4 h-4 mr-3" />
+              <LogOut className={`w-4 h-4 ${isRTL ? 'ml-3' : 'mr-3'}`} />
               Sign out
             </button>
           </div>
