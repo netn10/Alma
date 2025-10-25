@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { AuthGuard } from '@/components/auth/AuthGuard';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { ColorThemeSelector } from '@/components/ui/ColorThemeSelector';
-import { User, Bell, Brain, Shield, Palette } from 'lucide-react';
+import { User, Bell, Brain, Shield, Palette, Camera, X } from 'lucide-react';
 import { Button } from '@/components/Button';
 import { Card } from '@/components/Card';
 import { Switch } from '@/components/Switch';
@@ -48,6 +48,9 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
+  const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Translation helper
   const t = (key: string) => {
@@ -339,6 +342,34 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
       'errorSaving': {
         en: 'Error saving settings',
         he: 'שגיאה בשמירת הגדרות'
+      },
+      'profilePicture': {
+        en: 'Profile Picture',
+        he: 'תמונת פרופיל'
+      },
+      'uploadPhoto': {
+        en: 'Upload Photo',
+        he: 'העלה תמונה'
+      },
+      'removePhoto': {
+        en: 'Remove Photo',
+        he: 'הסר תמונה'
+      },
+      'changePhoto': {
+        en: 'Change Photo',
+        he: 'שנה תמונה'
+      },
+      'googleProfilePicture': {
+        en: 'Your profile picture is managed by Google',
+        he: 'תמונת הפרופיל שלך מנוהלת על ידי Google'
+      },
+      'imageUploadError': {
+        en: 'Error uploading image',
+        he: 'שגיאה בהעלאת תמונה'
+      },
+      'imageDeleteError': {
+        en: 'Error removing image',
+        he: 'שגיאה בהסרת תמונה'
       }
     };
     return translations[key]?.[language] || translations[key]?.['en'] || key;
@@ -385,11 +416,24 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
         name: session.user?.name || '',
         email: session.user?.email || ''
       }));
-      
+
       // Load existing preferences
       loadUserPreferences();
+      checkGoogleAuth();
     }
   }, [session]);
+
+  const checkGoogleAuth = async () => {
+    try {
+      const response = await fetch('/api/auth/check-google');
+      if (response.ok) {
+        const data = await response.json();
+        setIsGoogleUser(data.isGoogleUser);
+      }
+    } catch (error) {
+      console.error('Error checking Google auth:', error);
+    }
+  };
 
   const loadUserPreferences = async () => {
     try {
@@ -419,7 +463,7 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
   const handleSaveSettings = async (section: string) => {
     setIsLoading(true);
     setSaveMessage('');
-    
+
     try {
       const response = await fetch('/api/settings', {
         method: 'POST',
@@ -428,8 +472,8 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
         },
         body: JSON.stringify({
           section,
-          settings: section === 'user' ? userSettings : 
-                   section === 'alma' ? almaSettings : 
+          settings: section === 'user' ? userSettings :
+                   section === 'alma' ? almaSettings :
                    privacySettings
         }),
       });
@@ -444,6 +488,69 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
       setSaveMessage(t('errorSaving'));
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingImage(true);
+    setSaveMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/profile-picture', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        // Update session with new image URL
+        await update();
+        setSaveMessage(t('settingsSaved'));
+        setTimeout(() => setSaveMessage(''), 3000);
+      } else {
+        const errorData = await response.json();
+        setSaveMessage(errorData.error || t('imageUploadError'));
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      setSaveMessage(t('imageUploadError'));
+    } finally {
+      setUploadingImage(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleRemoveImage = async () => {
+    setUploadingImage(true);
+    setSaveMessage('');
+
+    try {
+      const response = await fetch('/api/profile-picture', {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Update session to remove image
+        await update();
+        setSaveMessage(t('settingsSaved'));
+        setTimeout(() => setSaveMessage(''), 3000);
+      } else {
+        const errorData = await response.json();
+        setSaveMessage(errorData.error || t('imageDeleteError'));
+      }
+    } catch (error) {
+      console.error('Error removing image:', error);
+      setSaveMessage(t('imageDeleteError'));
+    } finally {
+      setUploadingImage(false);
     }
   };
 
@@ -500,6 +607,64 @@ export function SettingsPage({ onNavigate, language = 'en' }: SettingsPageProps)
                 <Card className="p-6">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">{t('profileSettings')}</h2>
                   <div className="space-y-4">
+                    {/* Profile Picture Section */}
+                    <div>
+                      <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${language === 'he' ? 'text-right' : 'text-left'}`}>
+                        {t('profilePicture')}
+                      </label>
+                      <div className={`flex items-center gap-4 ${language === 'he' ? 'flex-row-reverse' : ''}`}>
+                        {session?.user?.image ? (
+                          <img
+                            src={session.user.image}
+                            alt={session.user.name || 'Profile'}
+                            className="w-20 h-20 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
+                          />
+                        ) : (
+                          <div className="w-20 h-20 bg-gray-200 dark:bg-gray-600 rounded-full flex items-center justify-center">
+                            <User className="w-10 h-10 text-gray-600 dark:text-gray-300" />
+                          </div>
+                        )}
+                        <div className="flex flex-col gap-2">
+                          {isGoogleUser ? (
+                            <p className="text-sm text-gray-500 dark:text-gray-400">
+                              {t('googleProfilePicture')}
+                            </p>
+                          ) : (
+                            <>
+                              <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                                onChange={handleImageUpload}
+                                className="hidden"
+                              />
+                              <Button
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={uploadingImage}
+                                variant="outline"
+                                size="sm"
+                              >
+                                <Camera className={`w-4 h-4 ${language === 'he' ? 'ml-2' : 'mr-2'}`} />
+                                {uploadingImage ? t('saving') : (session?.user?.image ? t('changePhoto') : t('uploadPhoto'))}
+                              </Button>
+                              {session?.user?.image && (
+                                <Button
+                                  onClick={handleRemoveImage}
+                                  disabled={uploadingImage}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700"
+                                >
+                                  <X className={`w-4 h-4 ${language === 'he' ? 'ml-2' : 'mr-2'}`} />
+                                  {t('removePhoto')}
+                                </Button>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     <div>
                       <label className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${language === 'he' ? 'text-right' : 'text-left'}`}>
                         {t('displayName')}
