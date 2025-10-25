@@ -159,11 +159,28 @@ export class SessionManager {
 
   // Helper to convert Prisma DB session to AlmaSession type
   private dbSessionToAlmaSession(dbSession: any): AlmaSession {
+    // Helper to convert message timestamps
+    const convertMessage = (msg: any): any => {
+      if (msg && typeof msg === 'object') {
+        return {
+          ...msg,
+          timestamp: msg.timestamp instanceof Date 
+            ? msg.timestamp 
+            : typeof msg.timestamp === 'string' 
+              ? new Date(msg.timestamp)
+              : new Date()
+        };
+      }
+      return msg;
+    };
+
     return {
       id: dbSession.id,
       userId: dbSession.userId,
       title: dbSession.title,
-      messages: Array.isArray(dbSession.messages) ? dbSession.messages : [],
+      messages: Array.isArray(dbSession.messages) 
+        ? dbSession.messages.map(convertMessage)
+        : [],
       mode: dbSession.mode as ConversationMode,
       memory: dbSession.memory as SessionMemory,
       createdAt: dbSession.createdAt,

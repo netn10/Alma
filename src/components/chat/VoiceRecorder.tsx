@@ -7,9 +7,10 @@ interface VoiceRecorderProps {
   onTranscription: (text: string) => void;
   onError: (error: string) => void;
   disabled?: boolean;
+  language?: string;
 }
 
-export function VoiceRecorder({ onTranscription, onError, disabled = false }: VoiceRecorderProps) {
+export function VoiceRecorder({ onTranscription, onError, disabled = false, language = 'en' }: VoiceRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -70,6 +71,7 @@ export function VoiceRecorder({ onTranscription, onError, disabled = false }: Vo
     try {
       const formData = new FormData();
       formData.append('audio', audioBlob, 'recording.wav');
+      formData.append('language', language);
 
       const response = await fetch('/api/voice/transcribe', {
         method: 'POST',

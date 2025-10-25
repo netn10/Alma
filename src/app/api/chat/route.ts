@@ -35,7 +35,7 @@ async function generateConversationTitle(firstMessage: string): Promise<string> 
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, sessionId, userId, mode = 'ask' } = await request.json();
+    const { message, sessionId, userId, mode = 'ask', language = 'en' } = await request.json();
 
     if (!message || !userId) {
       return NextResponse.json(
@@ -69,6 +69,15 @@ export async function POST(request: NextRequest) {
       await sessionManager.updateMode(session.id, mode);
     }
 
+    // Reload session to get updated messages including the new user message
+    session = await sessionManager.getSession(session.id);
+    if (!session) {
+      throw new Error('Failed to reload session');
+    }
+
+    // Log session messages for debugging
+    console.log('Session messages:', session.messages.map(m => ({ role: m.role, content: m.content.substring(0, 50) })));
+
     // Initialize OpenAI client
     const almaClient = new AlmaOpenAIClient({
       systemPrompt: ALMA_SYSTEM_PROMPT,
@@ -76,8 +85,8 @@ export async function POST(request: NextRequest) {
       behaviorSettings: DEFAULT_BEHAVIOR_SETTINGS
     });
 
-    // Generate response
-    const response = await almaClient.generateResponse(session.messages, mode);
+    // Generate response using the updated session messages
+    const response = await almaClient.generateResponse(session.messages, mode, language);
 
     // Create assistant message
     const assistantMessage = {

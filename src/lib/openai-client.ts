@@ -14,9 +14,13 @@ export class AlmaOpenAIClient {
 
   async generateResponse(
     messages: AlmaMessage[],
-    mode: 'ask' | 'reflect' | 'quiet' = 'ask'
+    mode: 'ask' | 'reflect' | 'quiet' = 'ask',
+    language: string = 'en'
   ): Promise<AlmaResponse> {
     try {
+      // Log messages being sent to OpenAI for debugging
+      console.log('Generating response with messages:', messages.map(m => ({ role: m.role, content: m.content.substring(0, 50) })));
+      
       const systemMessage = this.buildSystemMessage(mode);
       const openaiMessages = [
         { role: 'system', content: systemMessage },
@@ -41,7 +45,7 @@ export class AlmaOpenAIClient {
       }
 
       // Generate AI-powered suggestions based on the conversation
-      const suggestions = await this.generateSuggestions(messages, fullResponse, mode);
+      const suggestions = await this.generateSuggestions(messages, fullResponse, mode, language);
 
       return {
         content: fullResponse,
@@ -90,10 +94,12 @@ export class AlmaOpenAIClient {
   private async generateSuggestions(
     conversationHistory: AlmaMessage[],
     lastResponse: string,
-    mode: string
+    mode: string,
+    language: string = 'en'
   ): Promise<string[]> {
     try {
       const modeContext = this.getSuggestionContext(mode);
+      const languageInstruction = language === 'he' ? '\n\nIMPORTANT: Generate the suggestions in Hebrew (עברית).' : '';
       const suggestionPrompt = `Based on this conversation, generate 3 smart, actionable suggestions that help the user move forward with their specific situation.
 
 Current mode: ${mode.toUpperCase()}
@@ -109,6 +115,7 @@ Generate 3 brief, goal-oriented suggestions (each under 10 words) written from t
 - Point toward concrete next actions or decisions
 - Be specific to the conversation context, not generic
 - Guide the user toward clarity, resolution, or forward movement
+${languageInstruction}
 
 IMPORTANT: You MUST respond with ONLY a JSON array, nothing else. No explanations, no apologies, no extra text.
 Format: ["suggestion 1", "suggestion 2", "suggestion 3"]`;

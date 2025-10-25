@@ -6,12 +6,14 @@ interface UseSpeechRecognitionProps {
   onTranscriptionUpdate: (text: string) => void;
   onError?: (error: string) => void;
   disabled?: boolean;
+  language?: string;
 }
 
 export function useSpeechRecognition({
   onTranscriptionUpdate,
   onError,
-  disabled = false
+  disabled = false,
+  language = 'en-US'
 }: UseSpeechRecognitionProps) {
   const [isListening, setIsListening] = useState(false);
   const [isSupported, setIsSupported] = useState(true);
@@ -44,7 +46,7 @@ export function useSpeechRecognition({
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = 'en-US';
+      recognition.lang = language === 'he' ? 'he-IL' : 'en-US';
       recognition.maxAlternatives = 1;
 
       recognition.onstart = () => {
@@ -57,9 +59,11 @@ export function useSpeechRecognition({
         let finalTranscript = finalTranscriptRef.current;
 
         for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
+          const result = event.results[i];
+          // Get the transcript from the result
+          const transcript = result[0].transcript || result[0];
 
-          if (event.results[i].isFinal) {
+          if (result.isFinal) {
             finalTranscript += transcript + ' ';
           } else {
             interimTranscript += transcript;
@@ -148,6 +152,14 @@ export function useSpeechRecognition({
       }
     };
   }, []); // Empty dependency array - only run once on mount
+
+  // Update language when it changes
+  useEffect(() => {
+    if (recognitionRef.current) {
+      recognitionRef.current.lang = language === 'he' ? 'he-IL' : 'en-US';
+      console.log('Updated recognition language to:', recognitionRef.current.lang);
+    }
+  }, [language]);
 
   const startListening = async () => {
     if (!recognitionRef.current || disabled || !isSupported) {

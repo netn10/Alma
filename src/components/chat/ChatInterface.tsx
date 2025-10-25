@@ -6,6 +6,7 @@ import { AlmaMessage, ConversationMode, SessionMemory } from '@/types/alma';
 import { MessageBubble } from './MessageBubble';
 import { ModeSelector } from './ModeSelector';
 import { ConversationSidebar } from './ConversationSidebar';
+import { LanguageSelector } from './LanguageSelector';
 import { useSpeechRecognition } from './RealTimeSpeechRecognition';
 
 interface ChatInterfaceProps {
@@ -24,6 +25,25 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
   const [voiceError, setVoiceError] = useState<string>('');
   const [isRecordingConfirmation, setIsRecordingConfirmation] = useState(false);
   const [userInitiatedRecording, setUserInitiatedRecording] = useState(false);
+  const [voiceLanguage, setVoiceLanguage] = useState<string>('en');
+
+  // Load voice language preference from settings
+  useEffect(() => {
+    const loadVoiceLanguage = async () => {
+      try {
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.preferences?.alma?.voiceLanguage) {
+            setVoiceLanguage(data.preferences.alma.voiceLanguage);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading voice language preference:', error);
+      }
+    };
+    loadVoiceLanguage();
+  }, []);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +81,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
       const data = await response.json();
 
       if (response.ok && data.conversation) {
-        const conversation = data.conversation;
+        const { conversation } = data;
         setSessionId(conversation.id);
         setMessages(conversation.messages.map((msg: any) => ({
           ...msg,
@@ -111,7 +131,8 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
           message: content.trim(),
           sessionId: sessionId || undefined,
           userId,
-          mode
+          mode,
+          language: voiceLanguage
         })
       });
 
@@ -205,7 +226,8 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
   const { isListening, toggleListening } = useSpeechRecognition({
     onTranscriptionUpdate: handleVoiceTranscription,
     onError: handleVoiceError,
-    disabled: isLoading
+    disabled: isLoading,
+    language: voiceLanguage
   });
 
   // Handle transition to confirmation state when listening stops and there's transcription
@@ -269,6 +291,12 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
                 onModeChange={handleModeChange}
               />
             </div>
+            <div className="flex items-center space-x-2">
+              <LanguageSelector
+                selectedLanguage={voiceLanguage}
+                onLanguageChange={setVoiceLanguage}
+              />
+            </div>
           </div>
         </div>
 
@@ -291,7 +319,7 @@ export function ChatInterface({ userId, initialSessionId }: ChatInterfaceProps) 
         )}
 
         {messages.map((message) => (
-          <MessageBubble key={message.id} message={message} />
+          <MessageBubble key={message.id} message={message} language={voiceLanguage} />
         ))}
 
         {isLoading && (

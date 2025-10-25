@@ -7,7 +7,7 @@ const openai = new OpenAI({
 
 export async function POST(request: NextRequest) {
   try {
-    const { text } = await request.json();
+    const { text, language = 'en' } = await request.json();
 
     if (!text) {
       return NextResponse.json(
@@ -16,10 +16,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Generate speech using OpenAI TTS with natural female voice
+    // Select appropriate voice based on language
+    let voice = 'nova'; // Default to Nova for English
+    if (language === 'he') {
+      // For Hebrew, we'll use Nova as it supports multiple languages
+      // OpenAI TTS doesn't have Hebrew-specific voices, but Nova can handle Hebrew text
+      voice = 'nova';
+    }
+
+    // Generate speech using OpenAI TTS with language-appropriate voice
     const mp3 = await openai.audio.speech.create({
       model: 'tts-1-hd', // Higher quality model for more natural speech
-      voice: 'nova', // Nova is OpenAI's natural-sounding female voice (not robotic)
+      voice: voice,
       input: text,
       response_format: 'mp3',
     });

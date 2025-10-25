@@ -7,9 +7,10 @@ interface VoicePlayerProps {
   text: string;
   onError?: (error: string) => void;
   autoPlay?: boolean;
+  language?: string;
 }
 
-export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProps) {
+export function VoicePlayer({ text, onError, autoPlay = false, language = 'en' }: VoicePlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -30,7 +31,7 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
       const response = await fetch('/api/voice/synthesize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, language }),
       });
 
       if (response.ok) {
@@ -83,29 +84,53 @@ export function VoicePlayer({ text, onError, autoPlay = false }: VoicePlayerProp
     utterance.pitch = 1.0; // Natural pitch
     utterance.volume = isMuted ? 0 : 0.9;
 
-    // Enhanced female voice selection
+    // Enhanced voice selection based on language
     const voices = speechSynthesis.getVoices();
-    const femaleVoice = voices.find(voice => 
-      voice.name.toLowerCase().includes('samantha') ||
-      voice.name.toLowerCase().includes('karen') ||
-      voice.name.toLowerCase().includes('susan') ||
-      voice.name.toLowerCase().includes('victoria') ||
-      voice.name.toLowerCase().includes('zira') ||
-      voice.name.toLowerCase().includes('hazel') ||
-      voice.name.toLowerCase().includes('serena') ||
-      voice.name.toLowerCase().includes('female') || 
-      voice.name.toLowerCase().includes('woman') ||
-      voice.name.toLowerCase().includes('natural') ||
-      voice.name.toLowerCase().includes('premium') ||
-      voice.name.toLowerCase().includes('enhanced')
-    ) || voices.find(voice => 
-      voice.lang.startsWith('en') && 
-      (voice.name.toLowerCase().includes('female') || 
-       voice.name.toLowerCase().includes('woman'))
-    );
+    let selectedVoice = null;
+
+    if (language === 'he') {
+      // Look for Hebrew voices first
+      selectedVoice = voices.find(voice => 
+        voice.lang.startsWith('he') || 
+        voice.lang.startsWith('iw') // Hebrew language code
+      ) || voices.find(voice => 
+        voice.name.toLowerCase().includes('hebrew') ||
+        voice.name.toLowerCase().includes('israeli')
+      );
+    } else {
+      // Look for English female voices
+      selectedVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('samantha') ||
+        voice.name.toLowerCase().includes('karen') ||
+        voice.name.toLowerCase().includes('susan') ||
+        voice.name.toLowerCase().includes('victoria') ||
+        voice.name.toLowerCase().includes('zira') ||
+        voice.name.toLowerCase().includes('hazel') ||
+        voice.name.toLowerCase().includes('serena') ||
+        voice.name.toLowerCase().includes('female') || 
+        voice.name.toLowerCase().includes('woman') ||
+        voice.name.toLowerCase().includes('natural') ||
+        voice.name.toLowerCase().includes('premium') ||
+        voice.name.toLowerCase().includes('enhanced')
+      ) || voices.find(voice => 
+        voice.lang.startsWith('en') && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('woman'))
+      );
+    }
+
+    // Fallback to any voice in the target language
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => voice.lang.startsWith(language));
+    }
+
+    // Final fallback to any available voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+    }
     
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
     }
 
     speechSynthesis.speak(utterance);

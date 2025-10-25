@@ -24,6 +24,7 @@ interface AlmaSettings {
   maxContextLength: number;
   enableSuggestions: boolean;
   enablePrivateMode: boolean;
+  voiceLanguage: 'en' | 'he';
   toneRules: {
     [key: string]: boolean;
   };
@@ -55,6 +56,7 @@ export default function SettingsPage() {
     maxContextLength: 10,
     enableSuggestions: true,
     enablePrivateMode: true,
+    voiceLanguage: 'en',
     toneRules: {
       clarity: true,
       care: true,
@@ -337,6 +339,25 @@ export default function SettingsPage() {
                           checked={almaSettings.enablePrivateMode}
                           onChange={(checked) => setAlmaSettings(prev => ({ ...prev, enablePrivateMode: checked }))}
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                          Voice Language
+                        </label>
+                        <select
+                          value={almaSettings.voiceLanguage}
+                          onChange={(e) => setAlmaSettings(prev => ({ 
+                            ...prev, 
+                            voiceLanguage: e.target.value as 'en' | 'he' 
+                          }))}
+                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                        >
+                          <option value="en">🇺🇸 English</option>
+                          <option value="he">🇮🇱 עברית (Hebrew)</option>
+                        </select>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                          Language for voice input and output
+                        </p>
                       </div>
                     </div>
                   </Card>

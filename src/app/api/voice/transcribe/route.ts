@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const audioFile = formData.get('audio') as File;
+    const language = formData.get('language') as string || 'en';
 
     if (!audioFile) {
       return NextResponse.json(
@@ -24,11 +25,11 @@ export async function POST(request: NextRequest) {
     const audioBlob = new Blob([audioBuffer], { type: 'audio/wav' });
     const audioFileForOpenAI = new File([audioBlob], 'audio.wav', { type: 'audio/wav' });
 
-    // Transcribe using OpenAI Whisper
+    // Transcribe using OpenAI Whisper with configurable language
     const transcription = await openai.audio.transcriptions.create({
       file: audioFileForOpenAI,
       model: 'whisper-1',
-      language: 'en', // You can make this configurable
+      language: language, // Now configurable (en, he, etc.)
       response_format: 'text',
     });
 

@@ -6,9 +6,10 @@ import { useState, useEffect } from 'react';
 
 interface MessageBubbleProps {
   message: AlmaMessage;
+  language?: string;
 }
 
-export function MessageBubble({ message }: MessageBubbleProps) {
+export function MessageBubble({ message, language = 'en' }: MessageBubbleProps) {
   const isUser = message.role === 'user';
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -34,7 +35,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     };
   }, []);
 
-  const speakMessage = async () => {
+  const speakMessage = async (language = 'en') => {
     if (isSpeaking || isPlaying) {
       speechSynthesis.cancel();
       setIsSpeaking(false);
@@ -46,11 +47,11 @@ export function MessageBubble({ message }: MessageBubbleProps) {
     setIsPlaying(true);
 
     try {
-      // Try using the TTS API first for better quality female voice
+      // Try using the TTS API first for better quality voice
       const response = await fetch('/api/voice/synthesize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: message.content }),
+        body: JSON.stringify({ text: message.content, language }),
       });
 
       if (response.ok) {
@@ -76,37 +77,61 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       console.error('TTS API error:', error);
     }
 
-    // Fallback to browser speech synthesis with improved female voice selection
+    // Fallback to browser speech synthesis with language-appropriate voice selection
     const utterance = new SpeechSynthesisUtterance(message.content);
     
-    // Configure for natural female voice
+    // Configure for natural voice
     utterance.rate = 0.85; // Slightly slower for more natural speech
     utterance.pitch = 1.0; // Natural pitch
     utterance.volume = 0.9;
 
-    // Enhanced voice selection for female voices
+    // Enhanced voice selection based on language
     const voices = speechSynthesis.getVoices();
-    const femaleVoice = voices.find(voice => 
-      voice.name.toLowerCase().includes('samantha') ||
-      voice.name.toLowerCase().includes('karen') ||
-      voice.name.toLowerCase().includes('susan') ||
-      voice.name.toLowerCase().includes('victoria') ||
-      voice.name.toLowerCase().includes('zira') ||
-      voice.name.toLowerCase().includes('hazel') ||
-      voice.name.toLowerCase().includes('serena') ||
-      voice.name.toLowerCase().includes('female') ||
-      voice.name.toLowerCase().includes('woman') ||
-      voice.name.toLowerCase().includes('natural') ||
-      voice.name.toLowerCase().includes('premium') ||
-      voice.name.toLowerCase().includes('enhanced')
-    ) || voices.find(voice => 
-      voice.lang.startsWith('en') && 
-      (voice.name.toLowerCase().includes('female') || 
-       voice.name.toLowerCase().includes('woman'))
-    ) || voices.find(voice => voice.lang.startsWith('en'));
+    let selectedVoice = null;
 
-    if (femaleVoice) {
-      utterance.voice = femaleVoice;
+    if (language === 'he') {
+      // Look for Hebrew voices first
+      selectedVoice = voices.find(voice => 
+        voice.lang.startsWith('he') || 
+        voice.lang.startsWith('iw') // Hebrew language code
+      ) || voices.find(voice => 
+        voice.name.toLowerCase().includes('hebrew') ||
+        voice.name.toLowerCase().includes('israeli')
+      );
+    } else {
+      // Look for English female voices
+      selectedVoice = voices.find(voice => 
+        voice.name.toLowerCase().includes('samantha') ||
+        voice.name.toLowerCase().includes('karen') ||
+        voice.name.toLowerCase().includes('susan') ||
+        voice.name.toLowerCase().includes('victoria') ||
+        voice.name.toLowerCase().includes('zira') ||
+        voice.name.toLowerCase().includes('hazel') ||
+        voice.name.toLowerCase().includes('serena') ||
+        voice.name.toLowerCase().includes('female') ||
+        voice.name.toLowerCase().includes('woman') ||
+        voice.name.toLowerCase().includes('natural') ||
+        voice.name.toLowerCase().includes('premium') ||
+        voice.name.toLowerCase().includes('enhanced')
+      ) || voices.find(voice => 
+        voice.lang.startsWith('en') && 
+        (voice.name.toLowerCase().includes('female') || 
+         voice.name.toLowerCase().includes('woman'))
+      );
+    }
+
+    // Fallback to any voice in the target language
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => voice.lang.startsWith(language));
+    }
+
+    // Final fallback to any available voice
+    if (!selectedVoice) {
+      selectedVoice = voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+    }
+
+    if (selectedVoice) {
+      utterance.voice = selectedVoice;
     }
 
     utterance.onstart = () => setIsSpeaking(true);
@@ -141,7 +166,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           {!isUser && (
             <div className="flex items-center space-x-2 mt-1">
               <button
-                onClick={speakMessage}
+                onClick={() => speakMessage(language)}
                 className={`flex items-center space-x-1 px-2 py-1 rounded text-xs transition-all duration-200 hover:scale-105 active:scale-95 hover:shadow-md ${
                   isSpeaking || isPlaying
                     ? 'bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300'
